@@ -15,7 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@hana-kotoba/utils": ["libs/utils/src/index.ts"]
+      "@utils": ["libs/utils/src/index.ts"]
     },
     "strict": true
   },

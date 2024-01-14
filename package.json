@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "utils:test": "nx run utils:test",
-    "edict:run": "nx run edict:serve:development",
+    "edict:run": "ts-node -r tsconfig-paths/register --project apps/edict/tsconfig.json apps/edict/src/main.ts",
     "web:dev": "nx run web:serve:development",
     "web:run": "nx run web:serve:production",
     "web:e2e": "nx run web-e2e:e2e"
@@ -13,6 +13,7 @@
   "dependencies": {
     "@nx/next": "17.2.8",
     "axios": "^1.0.0",
+    "fast-xml-parser": "^4.3.3",
     "next": "13.4.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
