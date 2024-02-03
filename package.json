@@ -4,6 +4,7 @@
   "license": "MIT",
   "scripts": {
     "utils:test": "nx run utils:test",
+    "utils:test:dev": "nx run utils:test:dev",
     "edict:run": "ts-node -r tsconfig-paths/register --project apps/edict/tsconfig.json apps/edict/src/main.ts",
     "web:dev": "nx run web:serve:development",
     "web:run": "nx run web:serve:production",
