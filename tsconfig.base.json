@@ -15,7 +15,10 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@utils": ["libs/utils/src/index.ts"]
+      "@game": ["libs/game/src/lib"],
+      "@game/*": ["libs/game/src/lib/*"],
+      "@utils": ["libs/utils/src/lib"],
+      "@utils/*": ["libs/utils/src/lib/*"]
     },
     "strict": true
   },
