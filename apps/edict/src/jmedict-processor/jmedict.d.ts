@@ -1,7 +1,7 @@
 export interface JmDictXml {
   '?xml': string;
   JMdict: {
-    entry: JMDictEntry[];
+    entry: JmDictEntry[];
   };
 }
 
@@ -407,7 +407,7 @@ export const enum JmDictMisc {
 }
 
 /** <pos> (part-of-speech) entities */
-const enum JmDictSensePos {
+export const enum JmDictSensePos {
   unc = 'unclassified',
   adj_f = 'noun or verb acting prenominally',
   adj_i = 'adjective (keiyoushi)',

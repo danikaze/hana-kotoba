@@ -1,13 +1,16 @@
 import { XMLParser } from 'fast-xml-parser';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 
+import { isFullHiragana } from '@utils/jp';
+import { elemToArray } from '@utils/elem-to-array';
+
 import {
   JmDictEntry,
   JmDictReadingElement,
+  JmDictSense,
   JmDictSensePos,
   JmDictXml,
 } from './jmedict';
-import { elemToArray, isFullHiragana } from '@utils';
 
 interface MetaData {
   /** Date when the JMdict XML was created */
@@ -235,7 +238,9 @@ export class JMDictProcessor {
       (entry) => entry.ent_seq === 9999999
     );
     if (!entry) return;
-    return /Creation Date: (\d{4}-\d{2}-\d{2})/.exec(entry.sense.gloss)?.[1];
+    return /Creation Date: (\d{4}-\d{2}-\d{2})/.exec(
+      (entry.sense as JmDictSense).gloss as string
+    )?.[1];
   }
 
   private doIndexing(): void {
