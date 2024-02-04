@@ -2,9 +2,11 @@ export type BinaryMatrix = boolean[][];
 
 const SIZE_SEPARATOR = 'x';
 const DATA_SEPARATOR = ':';
+const ENCODING_BASE = 32;
+const LAST_BIT_VALUE = ENCODING_BASE >> 1;
 
 /**
- * Encode a matrix of booleans into a string
+ * Encode a matrix of booleans into a string (base 32)
  */
 export function encodeBinaryMatrix(matrix: Readonly<BinaryMatrix>): string;
 export function encodeBinaryMatrix<T>(
@@ -17,7 +19,11 @@ export function encodeBinaryMatrix<T>(
 ): string {
   const height = matrix.length;
   const width = height ? matrix[0].length : 0;
-  const size = `${width}${SIZE_SEPARATOR}${height}`;
+  const size = [
+    width.toString(ENCODING_BASE),
+    SIZE_SEPARATOR,
+    height.toString(ENCODING_BASE),
+  ].join('');
 
   if (!height || !width) return size;
 
@@ -31,8 +37,8 @@ export function encodeBinaryMatrix<T>(
 export function decodeBinaryMatrix(encoded: string): BinaryMatrix {
   const colon = encoded.indexOf(DATA_SEPARATOR);
   const [w, h] = encoded.substring(0, colon).split(SIZE_SEPARATOR);
-  const width = Number(w);
-  const height = Number(h);
+  const width = parseInt(w, ENCODING_BASE);
+  const height = parseInt(h, ENCODING_BASE);
   const bits = encoded.substring(colon + 1);
   return stringToBooleanMatrix(width, height, bits);
 }
@@ -55,23 +61,20 @@ function stringToBooleanMatrix(
     return res;
   }
 
-  if (bits.length % 2) {
-    throw new Error(`Invalid encoding`);
-  }
-
   let row: boolean[] = [];
   res.push(row);
 
-  for (let c = 0; c < bits.length; c += 2) {
-    const n = parseInt(bits.substring(c, c + 2), 16);
+  for (let c = 0; c < bits.length; c++) {
+    const n = parseInt(bits[c], ENCODING_BASE);
     let b = 1;
-    while (b <= n) {
+    while (b <= LAST_BIT_VALUE) {
       row.push((n & b) !== 0);
       if (row.length === width) {
+        if (res.length === height) break;
         row = [];
         res.push(row);
       }
-      b = b === 127 ? 1 : b << 1;
+      b = b << 1;
     }
   }
 
@@ -110,9 +113,9 @@ function binaryMatrixToString<T>(
         current += bits;
       }
 
-      if (bits === 128) {
+      if (bits === LAST_BIT_VALUE) {
         bits = 1;
-        str += current.toString(16);
+        str += current.toString(ENCODING_BASE);
         current = 0;
       } else {
         bits = bits << 1;
@@ -121,7 +124,7 @@ function binaryMatrixToString<T>(
   }
 
   if (bits > 1) {
-    str += current < 17 ? `0${current.toString(16)}` : current.toString(16);
+    str += current.toString(ENCODING_BASE);
   }
 
   return str;

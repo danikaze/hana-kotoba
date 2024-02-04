@@ -5,8 +5,11 @@
   "scripts": {
     "utils:test": "nx run utils:test",
     "utils:test:dev": "nx run utils:test:dev",
+    "game:test": "nx run game:test",
+    "game:test:dev": "nx run game:test:dev",
     "edict:run": "ts-node -r tsconfig-paths/register --project apps/edict/tsconfig.json apps/edict/src/main.ts",
     "web:dev": "nx run web:serve:development",
+    "web:build": "nx run web:build",
     "web:run": "nx run web:serve:production",
     "web:e2e": "nx run web-e2e:e2e",
     "api:dev": "nx run api:serve:development",

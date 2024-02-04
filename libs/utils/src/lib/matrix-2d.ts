@@ -113,7 +113,7 @@ export class Matrix2D<T> {
    * 7 8 9
    */
   public iterateHorizontally(
-    callback: (cell: T, i: number, j: number) => void
+    callback: (cell: T, col: number, row: number) => void
   ): void {
     const height = this.height();
     if (height === 0) return;
@@ -134,7 +134,7 @@ export class Matrix2D<T> {
    * 3 6 9
    */
   public iterateVertically(
-    callback: (cell: T, i: number, j: number) => void
+    callback: (cell: T, col: number, row: number) => void
   ): void {
     const height = this.height();
     if (height === 0) return;
@@ -172,11 +172,11 @@ export class Matrix2D<T> {
     }
   }
 
-  public compose(
-    matrix: Matrix2D<T>,
+  public compose<U extends T>(
+    matrix: Matrix2D<U>,
     offsetColumn: number = 0,
     offsetRow: number = 0,
-    ignore?: T | IgnoreComposeCellFn<T>
+    ignore?: U | IgnoreComposeCellFn<U>
   ): void {
     for (
       let or = 0, tr = offsetRow;
