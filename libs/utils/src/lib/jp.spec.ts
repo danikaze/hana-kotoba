@@ -1,4 +1,4 @@
-import { isHiragana, isKatakana, isKanji } from './jp';
+import { isHiragana, isKatakana, isKanji, isSmallChar } from './jp';
 
 describe('Japanese utility functions', () => {
   it('should identify hiragana characters', () => {
@@ -44,5 +44,58 @@ describe('Japanese utility functions', () => {
     expect(isKanji('パ')).toBe(false);
 
     expect(isKanji('亜')).toBe(true);
+  });
+
+  it('should identify small characters', () => {
+    expect(isSmallChar('っ')).toBe(true);
+    expect(isSmallChar('つ')).toBe(false);
+
+    expect(isSmallChar('ゃ')).toBe(true);
+    expect(isSmallChar('や')).toBe(false);
+
+    expect(isSmallChar('ゅ')).toBe(true);
+    expect(isSmallChar('ゆ')).toBe(false);
+
+    expect(isSmallChar('ょ')).toBe(true);
+    expect(isSmallChar('よ')).toBe(false);
+
+    expect(isSmallChar('ぁ')).toBe(true);
+    expect(isSmallChar('あ')).toBe(false);
+
+    expect(isSmallChar('ぃ')).toBe(true);
+    expect(isSmallChar('い')).toBe(false);
+
+    expect(isSmallChar('ぅ')).toBe(true);
+    expect(isSmallChar('う')).toBe(false);
+
+    expect(isSmallChar('ぇ')).toBe(true);
+    expect(isSmallChar('え')).toBe(false);
+
+    expect(isSmallChar('ぉ')).toBe(true);
+    expect(isSmallChar('お')).toBe(false);
+
+    expect(isSmallChar('ッ')).toBe(true);
+    expect(isSmallChar('ツ')).toBe(false);
+
+    expect(isSmallChar('ャ')).toBe(true);
+    expect(isSmallChar('ヤ')).toBe(false);
+
+    expect(isSmallChar('ュ')).toBe(true);
+    expect(isSmallChar('ユ')).toBe(false);
+
+    expect(isSmallChar('ョ')).toBe(true);
+    expect(isSmallChar('ヨ')).toBe(false);
+
+    expect(isSmallChar('ァ')).toBe(true);
+    expect(isSmallChar('ア')).toBe(false);
+
+    expect(isSmallChar('ィ')).toBe(true);
+    expect(isSmallChar('イ')).toBe(false);
+
+    expect(isSmallChar('ゥ')).toBe(true);
+    expect(isSmallChar('ウ')).toBe(false);
+
+    expect(isSmallChar('ォ')).toBe(true);
+    expect(isSmallChar('オ')).toBe(false);
   });
 });

@@ -23,6 +23,7 @@
     "@nestjs/platform-express": "^10.0.2",
     "@nx/next": "17.2.8",
     "axios": "^1.0.0",
+    "clsx": "^2.1.0",
     "fast-xml-parser": "^4.3.3",
     "next": "13.4.4",
     "react": "18.2.0",

@@ -1,0 +1,21 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.matrix {
+  background: grey;
+}
+
+.half {
+  max-height: calc(50vh - 20px);
+  height: calc(50vh - 20px);
+  overflow: hidden;
+
+  padding: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

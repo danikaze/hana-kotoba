@@ -1,0 +1,187 @@
+@use 'sass:math';
+
+@mixin radial($total, $n, $size) {
+  $size: 25%;
+  $borderWidth: 5px;
+  $marginToBorder: 15px;
+
+  border-width: $borderWidth;
+  width: $size;
+  height: $size;
+
+  $center: calc(50% - $size / 2 - $borderWidth);
+  $deg: 90deg + $n * (360deg / $total);
+  $r: calc($center - $marginToBorder);
+
+  top: calc($center - math.sin($deg) * $r);
+  left: calc($center - math.cos($deg) * $r);
+
+  @media (max-width: 330px) {
+    $size: 22%;
+    $borderWidth: 4px;
+    $marginToBorder: 12px;
+
+    border-width: $borderWidth;
+    width: $size;
+    height: $size;
+
+    $center: calc(50% - $size / 2 - $borderWidth);
+    $deg: 90deg + $n * (360deg / $total);
+    $r: calc($center - $marginToBorder);
+
+    top: calc($center - math.sin($deg) * $r);
+    left: calc($center - math.cos($deg) * $r);
+  }
+
+  @media (max-width: 270px) {
+    $size: 20%;
+    $borderWidth: 3px;
+    $marginToBorder: 10px;
+
+    border-width: $borderWidth;
+    width: $size;
+    height: $size;
+
+    $center: calc(50% - $size / 2 - $borderWidth);
+    $deg: 90deg + $n * (360deg / $total);
+    $r: calc($center - $marginToBorder);
+
+    top: calc($center - math.sin($deg) * $r);
+    left: calc($center - math.cos($deg) * $r);
+  }
+}
+
+@keyframes charErrorBlink {
+  0%,
+  50% {
+    border-color: red;
+  }
+  51%,
+  100% {
+    border-color: orange;
+  }
+}
+
+@keyframes lineErrorBlink {
+  0%,
+  50% {
+    stroke: red;
+  }
+  51%,
+  100% {
+    stroke: blue;
+  }
+}
+
+.root {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9dcfd;
+  border-radius: 50%;
+  min-width: 170px;
+  aspect-ratio: 1;
+
+  // higher than wider
+  @media (max-aspect-ratio: 0.5) {
+    width: 100%;
+  }
+  // wider than higher
+  @media (min-aspect-ratio: 0.5) {
+    height: 100%;
+  }
+}
+
+.char {
+  position: absolute;
+  border: solid blue;
+  border-radius: 50%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-color: white;
+  font-size: 65px;
+  font-weight: bold;
+
+  transition: font-size 100ms, width 100ms, height 100ms, top 100ms, left 100ms;
+
+  &.used {
+    border-color: orange;
+  }
+
+  &.invalid {
+    animation: charErrorBlink 400ms infinite;
+  }
+
+  &.found {
+    border-color: green;
+  }
+
+  // would be better with @container queries but can't get them working...
+  @media (max-width: 400px) {
+    font-size: 60px;
+  }
+  @media (max-width: 350px) {
+    font-size: 56px;
+  }
+  @media (max-width: 330px) {
+    font-size: 50px;
+  }
+  @media (max-width: 300px) {
+    font-size: 40px;
+  }
+  @media (max-width: 270px) {
+    font-size: 36px;
+  }
+  @media (max-width: 230px) {
+    font-size: 32px;
+  }
+  @media (max-width: 200px) {
+    font-size: 24px;
+  }
+}
+
+.small {
+  font-size: 90%;
+  position: relative;
+  top: 3px;
+  left: -3px;
+}
+
+.connections {
+  width: 100%;
+  height: 100%;
+
+  line {
+    stroke: blue;
+    stroke-width: 3px;
+
+    &.invalid {
+      animation: lineErrorBlink 400ms infinite;
+    }
+
+    &.found {
+      stroke: green;
+    }
+  }
+}
+
+.chars5 {
+  .char1 {
+    @include radial(5, 0, 25%);
+  }
+  .char2 {
+    @include radial(5, 1, 25%);
+  }
+  .char3 {
+    @include radial(5, 2, 25%);
+  }
+  .char4 {
+    @include radial(5, 3, 25%);
+  }
+  .char5 {
+    @include radial(5, 4, 25%);
+  }
+}

@@ -1,0 +1,125 @@
+$matrixPadding: 5px;
+$cellMargin: 2px;
+$cellBorderWidth: 2px;
+
+@mixin cellSize($size) {
+  $w: calc(
+    (100% - $matrixPadding * 2) / $size - 2 * ($cellMargin + $cellBorderWidth)
+  );
+  width: $w;
+}
+
+.root {
+  display: flex;
+  flex-direction: column;
+  background-color: #cdcdcd;
+  border-radius: 10px;
+  padding: 5px;
+  margin: 0 auto;
+  min-width: 170px;
+  aspect-ratio: 1;
+
+  // higher than wider
+  @media (max-aspect-ratio: 0.5) {
+    width: 100%;
+  }
+  // wider than higher
+  @media (min-aspect-ratio: 0.5) {
+    height: 100%;
+  }
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+}
+
+.cell {
+  container-name: cell;
+  width: 50px;
+  aspect-ratio: 1;
+  margin: $cellMargin;
+  border: $cellBorderWidth solid grey;
+  border-radius: 10px;
+  background-color: white;
+  font-weight: bold;
+  font-size: 32px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &.empty {
+    border-color: transparent;
+    background-color: transparent;
+  }
+
+  // would be better with @container queries but can't get them working...
+  @media (max-width: 400px) {
+    font-size: 24px;
+    border-radius: 8px;
+  }
+  @media (max-width: 350px) {
+    font-size: 22px;
+  }
+  @media (max-width: 330px) {
+    font-size: 20px;
+    border-radius: 6px;
+  }
+  @media (max-width: 300px) {
+    font-size: 18px;
+  }
+  @media (max-width: 270px) {
+    font-size: 16px;
+  }
+  @media (max-width: 250px) {
+    font-size: 14px;
+  }
+  @media (max-width: 240px) {
+    font-size: 12px;
+    border-radius: 4px;
+  }
+}
+
+.small {
+  font-size: 85%;
+  position: relative;
+  left: -2px;
+  top: 2px;
+
+  @media (max-width: 240px) {
+    left: -1px;
+    top: 1px;
+  }
+}
+
+.cell3 .cell {
+  @include cellSize(3);
+}
+.cell4 .cell {
+  @include cellSize(4);
+}
+.cell5 .cell {
+  @include cellSize(5);
+}
+.cell6 .cell {
+  @include cellSize(6);
+}
+.cell7 .cell {
+  @include cellSize(7);
+}
+.cell8 .cell {
+  @include cellSize(8);
+}
+.cell9 .cell {
+  @include cellSize(9);
+}
+.cell10 .cell {
+  @include cellSize(10);
+}
+.cell11 .cell {
+  @include cellSize(11);
+}
+.cell12 .cell {
+  @include cellSize(12);
+}

@@ -61,3 +61,11 @@ export function isFullKanji(word: string): boolean {
   }
   return true;
 }
+
+/**
+ * Checks if the given **single character** is a "small" character
+ * such as "ょ", "っ", etc.
+ */
+export function isSmallChar(char: string): boolean {
+  return 'っゃゅょぁぃぅぇぉッャュョァィゥォ'.includes(char);
+}
