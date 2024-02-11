@@ -9,23 +9,70 @@ $cellBorderWidth: 2px;
   width: $w;
 }
 
+// would be better with @container queries but couldn't get them working...
+@mixin cellSizeBy($type: 'width', $ratio: 1) {
+  $query: 'min-' + $type;
+  font-size: 8px;
+  border-radius: 4px;
+
+  @media ($query: calc(170px * $ratio)) {
+    font-size: 10px;
+  }
+  @media ($query: calc(240px * $ratio)) {
+    font-size: 14px;
+  }
+  @media ($query: calc(250px * $ratio)) {
+    font-size: 16px;
+  }
+  @media ($query: calc(270px * $ratio)) {
+    font-size: 18px;
+  }
+  @media ($query: calc(300px * $ratio)) {
+    font-size: 20px;
+    border-radius: 6px;
+  }
+  @media ($query: calc(350px * $ratio)) {
+    font-size: 24px;
+    border-radius: 8px;
+  }
+  @media ($query: calc(420px * $ratio)) {
+    font-size: 28px;
+  }
+  @media ($query: calc(500px * $ratio)) {
+    font-size: 32px;
+    border-width: 3px;
+  }
+  @media ($query: calc(600px * $ratio)) {
+    font-size: 40px;
+  }
+  @media ($query: calc(700px * $ratio)) {
+    font-size: 50px;
+  }
+  @media ($query: calc(800px * $ratio)) {
+    font-size: 72px;
+  }
+}
+
 .root {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+
   background-color: #cdcdcd;
   border-radius: 10px;
   padding: 5px;
   margin: 0 auto;
   min-width: 170px;
+  min-height: 170px;
   aspect-ratio: 1;
 
-  // higher than wider
-  @media (max-aspect-ratio: 0.5) {
-    width: 100%;
+  // vertical screen, half wider than higher OR horizontal screen, half wider than higher
+  @media (max-aspect-ratio: 0.5) or ((min-aspect-ratio: 1) and (max-aspect-ratio: 2)) {
+    width: calc(100% - $matrixPadding * 2);
   }
-  // wider than higher
-  @media (min-aspect-ratio: 0.5) {
-    height: 100%;
+  // vertical screen, half higher than wider OR horizontal screen, half higher than wider
+  @media ((min-aspect-ratio: 0.5) and (max-aspect-ratio: 1)) or (min-aspect-ratio: 2) {
+    height: calc(100% - $matrixPadding * 2);
   }
 }
 
@@ -35,7 +82,6 @@ $cellBorderWidth: 2px;
 }
 
 .cell {
-  container-name: cell;
   width: 50px;
   aspect-ratio: 1;
   margin: $cellMargin;
@@ -54,30 +100,21 @@ $cellBorderWidth: 2px;
     background-color: transparent;
   }
 
-  // would be better with @container queries but can't get them working...
-  @media (max-width: 400px) {
-    font-size: 24px;
-    border-radius: 8px;
+  // vertical screen, half higher than wider
+  @media (max-aspect-ratio: 0.5) {
+    @include cellSizeBy('width', 1);
   }
-  @media (max-width: 350px) {
-    font-size: 22px;
+  // vertical screen, half higher than wider
+  @media (min-aspect-ratio: 0.5) and (max-aspect-ratio: 1) {
+    @include cellSizeBy('height', 2);
   }
-  @media (max-width: 330px) {
-    font-size: 20px;
-    border-radius: 6px;
+  // horizontal screen, half higher than wider
+  @media (min-aspect-ratio: 1) and (max-aspect-ratio: 2) {
+    @include cellSizeBy('width', 2);
   }
-  @media (max-width: 300px) {
-    font-size: 18px;
-  }
-  @media (max-width: 270px) {
-    font-size: 16px;
-  }
-  @media (max-width: 250px) {
-    font-size: 14px;
-  }
-  @media (max-width: 240px) {
-    font-size: 12px;
-    border-radius: 4px;
+  // horizontal screen, half wider than higher
+  @media (min-aspect-ratio: 2) {
+    @include cellSizeBy('height', 1);
   }
 }
 

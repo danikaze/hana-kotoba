@@ -6,11 +6,15 @@ import { CharData } from './hooks';
 
 import styles from './chars-circle.module.scss';
 
-export const Char = forwardRef<HTMLDivElement, CharData>(
+export type Props = CharData & {
+  total: number;
+};
+
+export const Char = forwardRef<HTMLDivElement, Props>(
   ({ index, char, used, invalid, isWord, onClick }, ref) => {
     const classes = clsx(
       styles.char,
-      styles[`char${index + 1}`],
+      styles[`char${index}`],
       used && styles.used,
       invalid && styles.invalid,
       isWord && styles.found

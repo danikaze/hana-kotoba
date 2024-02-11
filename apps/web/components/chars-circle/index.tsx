@@ -24,7 +24,7 @@ export const CharsCircle: FC<Props> = (props) => {
     <div className={clsx(styles.root, styles[`chars${charData.length}`])}>
       <Connections vertices={vertices} isWord={wordFound} />
       {charData.map(({ index }) => (
-        <Char key={index} {...charData[index]} />
+        <Char key={index} total={charData.length} {...charData[index]} />
       ))}
     </div>
   );
