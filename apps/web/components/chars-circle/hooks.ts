@@ -6,6 +6,9 @@ import {
   useEffect,
   useState,
 } from 'react';
+
+import { SHOW_FOUND_MS, SHOW_ERROR_MS } from '../../constants/ui';
+
 import { Props } from '.';
 
 export interface CharData {
@@ -28,9 +31,6 @@ export interface State {
   wordFound: boolean;
   error: boolean;
 }
-
-const SHOW_FOUND_MS = 1500;
-const SHOW_ERROR_MS = 1000;
 
 export function useCharsCircle({ chars, onCharSelected }: Props) {
   /*

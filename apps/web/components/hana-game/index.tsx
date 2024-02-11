@@ -9,8 +9,13 @@ import { useHanaPage } from './hooks';
 
 import styles from './hana-game.module.scss';
 
+export interface FoundCell {
+  col: number;
+  row: number;
+}
+
 export const HanaGame: FC = () => {
-  const { loadTry, matrix, chars, onCharSelected } = useHanaPage();
+  const { loadTry, matrix, chars, isFoundCell, onCharSelected } = useHanaPage();
 
   if (!matrix) {
     return (
@@ -23,7 +28,7 @@ export const HanaGame: FC = () => {
   return (
     <div className={styles.root}>
       <div className={clsx(styles.half, styles.matrix)}>
-        <WordMatrix rows={matrix} />
+        <WordMatrix rows={matrix} isFoundCell={isFoundCell} />
       </div>
       <div className={clsx(styles.half, styles.circle)}>
         <CharsCircle chars={chars!} onCharSelected={onCharSelected} />

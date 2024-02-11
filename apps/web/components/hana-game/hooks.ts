@@ -5,8 +5,10 @@ import {
   deserializeMatrixWords,
   matrixFromPositionedWords,
 } from '@game/matrix-words';
-
 import { Matrix2D } from '@utils/matrix-2d';
+
+import { SHOW_FOUND_MS } from '../../constants/ui';
+import { FoundCell } from '.';
 
 interface WordData extends WordPosition {
   found?: boolean;
@@ -19,6 +21,7 @@ export function useHanaPage() {
   const [matrix, setMatrix] = useState<Matrix2D<string | false> | undefined>();
   const [words, setWords] = useState<WordData[]>([]);
   const [chars, setChars] = useState<string[] | undefined>();
+  const [foundCells, setFoundCells] = useState<FoundCell[]>([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -61,6 +64,8 @@ export function useHanaPage() {
         const newWords = [...words];
         const wordData = newWords[wordIndex];
         wordData.found = true;
+
+        // schedule the change as it cannot be updated while it's rendering
         setTimeout(() => {
           setWords(newWords);
           const newMatrix = matrix!.clone();
@@ -70,7 +75,21 @@ export function useHanaPage() {
           }
           newMatrix.compose(cells, wordData.col, wordData.row);
           setMatrix(newMatrix);
+
+          const newFoundCells: FoundCell[] = [];
+          for (let i = 0; i < wordData.word.length; i++) {
+            newFoundCells.push({
+              row: wordData.row + (wordData.direction === 'v' ? i : 0),
+              col: wordData.col + (wordData.direction === 'h' ? i : 0),
+            });
+          }
+          setFoundCells(newFoundCells);
         });
+
+        // schedule unshowing the new words as found
+        setTimeout(() => {
+          setFoundCells([]);
+        }, SHOW_FOUND_MS);
 
         return 'FOUND';
       }
@@ -83,10 +102,18 @@ export function useHanaPage() {
     [words, matrix]
   );
 
+  const isFoundCell = useCallback(
+    (row: number, col: number): boolean => {
+      return foundCells.some((cell) => cell.col === col && cell.row === row);
+    },
+    [foundCells]
+  );
+
   return {
     loadTry,
     chars,
     matrix: matrix?.toArray(),
     onCharSelected,
+    isFoundCell,
   };
 }

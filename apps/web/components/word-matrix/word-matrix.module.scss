@@ -2,6 +2,17 @@ $matrixPadding: 5px;
 $cellMargin: 2px;
 $cellBorderWidth: 2px;
 
+@keyframes cellFoundBlink {
+  0%,
+  50% {
+    background-color: rgb(202, 241, 202);
+  }
+  51%,
+  100% {
+    background-color: white;
+  }
+}
+
 @mixin cellSize($size) {
   $w: calc(
     (100% - $matrixPadding * 2) / $size - 2 * ($cellMargin + $cellBorderWidth)
@@ -90,6 +101,7 @@ $cellBorderWidth: 2px;
   background-color: white;
   font-weight: bold;
   font-size: 32px;
+  transition: background-color 200ms;
 
   display: flex;
   justify-content: center;
@@ -98,6 +110,12 @@ $cellBorderWidth: 2px;
   &.empty {
     border-color: transparent;
     background-color: transparent;
+  }
+
+  &.found {
+    border-color: green;
+    animation: cellFoundBlink 400ms infinite;
+    color: green;
   }
 
   // vertical screen, half higher than wider
