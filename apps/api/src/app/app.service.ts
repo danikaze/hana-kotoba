@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { getGameData } from '@game';
-import { encodeBinaryMatrix } from '@utils/binary-matrix';
+import { serializeMatrixWords } from '@game/matrix-words';
+import { Matrix2D } from '@utils/matrix-2d';
 
 @Injectable()
 export class AppService {
@@ -9,10 +10,24 @@ export class AppService {
 
     if (!data) return;
 
+    print(data.matrix);
+
     return {
-      kanas: data.kanas,
-      words: data.words,
-      matrix: encodeBinaryMatrix(data.matrix, (char) => char !== ''),
+      k: data.kanas,
+      w: serializeMatrixWords(
+        data.matrix,
+        process.env.NODE_ENV === 'production'
+      ),
     };
   }
+}
+
+function print(matrix: Readonly<Matrix2D<string>>): void {
+  console.log(
+    `---[${matrix.width()}x${matrix.height()}]---\n` +
+      matrix
+        .toArray()
+        .map((row) => row.map((c) => c || '　').join(''))
+        .join('\n')
+  );
 }

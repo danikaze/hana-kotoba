@@ -1,0 +1,180 @@
+$matrixPadding: 5px;
+$cellMargin: 2px;
+$cellBorderWidth: 2px;
+
+@keyframes cellFoundBlink {
+  0%,
+  50% {
+    background-color: rgb(202, 241, 202);
+  }
+  51%,
+  100% {
+    background-color: white;
+  }
+}
+
+@mixin cellSize($size) {
+  $w: calc(
+    (100% - $matrixPadding * 2) / $size - 2 * ($cellMargin + $cellBorderWidth)
+  );
+  width: $w;
+}
+
+// would be better with @container queries but couldn't get them working...
+@mixin cellSizeBy($type: 'width', $ratio: 1) {
+  $query: 'min-' + $type;
+  font-size: 8px;
+  border-radius: 4px;
+
+  @media ($query: calc(170px * $ratio)) {
+    font-size: 10px;
+  }
+  @media ($query: calc(240px * $ratio)) {
+    font-size: 14px;
+  }
+  @media ($query: calc(250px * $ratio)) {
+    font-size: 16px;
+  }
+  @media ($query: calc(270px * $ratio)) {
+    font-size: 18px;
+  }
+  @media ($query: calc(300px * $ratio)) {
+    font-size: 20px;
+    border-radius: 6px;
+  }
+  @media ($query: calc(350px * $ratio)) {
+    font-size: 24px;
+    border-radius: 8px;
+  }
+  @media ($query: calc(420px * $ratio)) {
+    font-size: 28px;
+  }
+  @media ($query: calc(500px * $ratio)) {
+    font-size: 32px;
+    border-width: 3px;
+  }
+  @media ($query: calc(600px * $ratio)) {
+    font-size: 40px;
+  }
+  @media ($query: calc(700px * $ratio)) {
+    font-size: 50px;
+  }
+  @media ($query: calc(800px * $ratio)) {
+    font-size: 72px;
+  }
+}
+
+.root {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  background-color: #cdcdcd;
+  border-radius: 10px;
+  padding: 5px;
+  margin: 0 auto;
+  min-width: 170px;
+  min-height: 170px;
+  aspect-ratio: 1;
+
+  // vertical screen, half wider than higher OR horizontal screen, half wider than higher
+  @media (max-aspect-ratio: 0.5) or ((min-aspect-ratio: 1) and (max-aspect-ratio: 2)) {
+    width: calc(100% - $matrixPadding * 2);
+  }
+  // vertical screen, half higher than wider OR horizontal screen, half higher than wider
+  @media ((min-aspect-ratio: 0.5) and (max-aspect-ratio: 1)) or (min-aspect-ratio: 2) {
+    height: calc(100% - $matrixPadding * 2);
+  }
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+}
+
+.cell {
+  width: 50px;
+  aspect-ratio: 1;
+  margin: $cellMargin;
+  border: $cellBorderWidth solid grey;
+  border-radius: 10px;
+  background-color: white;
+  font-weight: bold;
+  font-size: 32px;
+  transition: background-color 200ms;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &.empty {
+    border-color: transparent;
+    background-color: transparent;
+  }
+
+  &.found {
+    border-color: green;
+    animation: cellFoundBlink 400ms infinite;
+    color: green;
+  }
+
+  // vertical screen, half higher than wider
+  @media (max-aspect-ratio: 0.5) {
+    @include cellSizeBy('width', 1);
+  }
+  // vertical screen, half higher than wider
+  @media (min-aspect-ratio: 0.5) and (max-aspect-ratio: 1) {
+    @include cellSizeBy('height', 2);
+  }
+  // horizontal screen, half higher than wider
+  @media (min-aspect-ratio: 1) and (max-aspect-ratio: 2) {
+    @include cellSizeBy('width', 2);
+  }
+  // horizontal screen, half wider than higher
+  @media (min-aspect-ratio: 2) {
+    @include cellSizeBy('height', 1);
+  }
+}
+
+.small {
+  font-size: 85%;
+  position: relative;
+  left: -2px;
+  top: 2px;
+
+  @media (max-width: 240px) {
+    left: -1px;
+    top: 1px;
+  }
+}
+
+.cell3 .cell {
+  @include cellSize(3);
+}
+.cell4 .cell {
+  @include cellSize(4);
+}
+.cell5 .cell {
+  @include cellSize(5);
+}
+.cell6 .cell {
+  @include cellSize(6);
+}
+.cell7 .cell {
+  @include cellSize(7);
+}
+.cell8 .cell {
+  @include cellSize(8);
+}
+.cell9 .cell {
+  @include cellSize(9);
+}
+.cell10 .cell {
+  @include cellSize(10);
+}
+.cell11 .cell {
+  @include cellSize(11);
+}
+.cell12 .cell {
+  @include cellSize(12);
+}

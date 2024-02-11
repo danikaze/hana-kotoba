@@ -1,0 +1,44 @@
+.root {
+  z-index: 1000;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: rgba(0, 0, 0, 0.5) 0 0 8px 0px;
+  border: 2px solid pink;
+
+  h2 {
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 130%;
+  }
+
+  .button {
+    margin: auto;
+    display: inline-block;
+
+    font-weight: bold;
+    color: rgb(129, 62, 73);
+    background-color: pink;
+    border: 3px solid rgb(180, 98, 112);
+    border-radius: 5px;
+    padding: 10px;
+  }
+}

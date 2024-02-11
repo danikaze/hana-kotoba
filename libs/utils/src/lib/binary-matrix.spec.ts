@@ -17,7 +17,7 @@ describe('binaryMatrix', () => {
       [false, true, false],
     ];
     const encoded = encodeBinaryMatrix(matrix);
-    expect(encoded).toBe('3x2:15');
+    expect(encoded).toBe('3x2:l0');
 
     const decoded = decodeBinaryMatrix(encoded);
     expect(decoded).toEqual(matrix);
@@ -31,7 +31,7 @@ describe('binaryMatrix', () => {
       [false, true, false],
     ];
     const encoded = encodeBinaryMatrix(matrix);
-    expect(encoded).toBe('3x4:d505');
+    expect(encoded).toBe('3x4:le1');
 
     const decoded = decodeBinaryMatrix(encoded);
     expect(decoded).toEqual(matrix);
@@ -46,6 +46,24 @@ describe('binaryMatrix', () => {
     ];
 
     const encoded = encodeBinaryMatrix(matrix, (n) => n !== 0);
-    expect(encoded).toBe('3x4:d505');
+    expect(encoded).toBe('3x4:le1');
+  });
+
+  it('should encode/decode real cases', () => {
+    const matrix = [
+      '　じゅうとう'.split(''),
+      '　ゅ　　う　'.split(''),
+      'とう　　じ　'.split(''),
+    ];
+
+    const encoded = encodeBinaryMatrix(matrix, (char) => char !== '　');
+    expect(encoded).toBe('6x3:u5d2');
+
+    const decoded = decodeBinaryMatrix(encoded);
+    expect(decoded).toEqual([
+      [false, true, true, true, true, true],
+      [false, true, false, false, true, false],
+      [true, true, false, false, true, false],
+    ]);
   });
 });
