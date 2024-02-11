@@ -5,6 +5,7 @@ import { clsx } from 'clsx';
 
 import { WordMatrix } from '../word-matrix';
 import { CharsCircle } from '../chars-circle';
+import { CompletedModal } from '../completed-modal';
 import { useHanaPage } from './hooks';
 
 import styles from './hana-game.module.scss';
@@ -15,7 +16,15 @@ export interface FoundCell {
 }
 
 export const HanaGame: FC = () => {
-  const { loadTry, matrix, chars, isFoundCell, onCharSelected } = useHanaPage();
+  const {
+    completed,
+    loadTry,
+    matrix,
+    chars,
+    isFoundCell,
+    onCharSelected,
+    getNewBoard,
+  } = useHanaPage();
 
   if (!matrix) {
     return (
@@ -27,6 +36,7 @@ export const HanaGame: FC = () => {
 
   return (
     <div className={styles.root}>
+      {completed && <CompletedModal reloadBoard={getNewBoard} />}
       <div className={clsx(styles.half, styles.matrix)}>
         <WordMatrix rows={matrix} isFoundCell={isFoundCell} />
       </div>

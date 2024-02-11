@@ -22,36 +22,33 @@ export function useHanaPage() {
   const [words, setWords] = useState<WordData[]>([]);
   const [chars, setChars] = useState<string[] | undefined>();
   const [foundCells, setFoundCells] = useState<FoundCell[]>([]);
+  const [completed, setCompleted] = useState(false);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch('http://localhost:3000/api', {
-          credentials: 'omit',
-        });
-        const json = await res.json();
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await fetch('http://localhost:3000/api', {
+        credentials: 'omit',
+      });
+      const json = await res.json();
 
-        if (json.w) {
-          const words = deserializeMatrixWords(json.w);
-          const matrix = matrixFromPositionedWords(words);
-          const board = new Matrix2D<string | false>(
-            matrix.width(),
-            matrix.height(),
-            (col, row) => (matrix.get(col, row) === EMPTY_CELL ? false : '')
-          );
-          setChars(json.k.split(''));
-          setWords(words);
-          setMatrix(board);
-        }
-      } catch (e) {
-        console.info(e);
-        console.info('retrying...');
-        setLoadTry((n) => n + 1);
-        fetchData();
+      if (json.w) {
+        const words = deserializeMatrixWords(json.w);
+        const matrix = matrixFromPositionedWords(words);
+        const board = new Matrix2D<string | false>(
+          matrix.width(),
+          matrix.height(),
+          (col, row) => (matrix.get(col, row) === EMPTY_CELL ? false : '')
+        );
+        setChars(json.k.split(''));
+        setWords(words);
+        setMatrix(board);
       }
+    } catch (e) {
+      console.info(e);
+      console.info('retrying...');
+      setLoadTry((n) => n + 1);
+      fetchData();
     }
-
-    fetchData();
   }, []);
 
   const onCharSelected = useCallback(
@@ -109,11 +106,34 @@ export function useHanaPage() {
     [foundCells]
   );
 
+  const getNewBoard = useCallback(() => {
+    setLoadTry(0);
+    setMatrix(undefined);
+    setCompleted(false);
+    fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  /**
+   * Every time a new word is found, check if the board is complete
+   */
+  useEffect(() => {
+    // check only when the "new found word highlight" ends
+    if (foundCells.length > 0) return;
+
+    setCompleted(() => words.every((word) => word.found));
+  }, [words, foundCells]);
+
   return {
+    completed,
     loadTry,
     chars,
     matrix: matrix?.toArray(),
     onCharSelected,
     isFoundCell,
+    getNewBoard,
   };
 }
