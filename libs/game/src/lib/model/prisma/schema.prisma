@@ -1,0 +1,238 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Meta {
+  name  String @id
+  value String
+}
+
+model JmDictEntry {
+  id     Int @id @default(autoincrement())
+  entSeq Int @unique
+
+  readings JmDictReading[]
+  senses   JmDictSense[]
+  kanjis   JmDictKanji[]
+}
+
+model JmDictKanji {
+  id      Int         @id @default(autoincrement())
+  entry   JmDictEntry @relation(references: [id], fields: [entryId])
+  entryId Int
+  kanji   String
+
+  infos      JmDictKanjiInfoOnJmDictKanji[]
+  priorities JmDictPrioritiesOnJmDictKanji[]
+}
+
+model JmDictReading {
+  id      Int         @id @default(autoincrement())
+  entry   JmDictEntry @relation(references: [id], fields: [entryId])
+  entryId Int
+  reading String
+
+  infos      JmDictReadingInfoOnJmDictReading[]
+  priorities JmDictPrioritiesOnJmDictReading[]
+}
+
+model JmDictSense {
+  id      Int         @id @default(autoincrement())
+  entry   JmDictEntry @relation(references: [id], fields: [entryId])
+  entryId Int
+
+  glosses  JmDictGloss[]
+  miscs    JmDictMiscOnJmDictSense[]
+  dialects JmDictDialectOnJmDictSense[]
+  fields   JmDictSenseFieldOnJmDictSense[]
+  pos      JmDictSensePosOnJmDictSense[]
+  antonyms JmDictAntonym[]
+  xrefs    JmDictCrossReference[]
+  lSources JmDictLanguageSource[]
+}
+
+model JmDictGloss {
+  id        Int              @id @default(autoincrement())
+  sense     JmDictSense      @relation(fields: [senseId], references: [id])
+  senseId   Int
+  text      String?
+  language  JmDictLang       @relation(fields: [lang], references: [id])
+  lang      String
+  glossType JmDictGlossType? @relation(fields: [type], references: [id])
+  type      String?
+}
+
+model JmDictAntonym {
+  id      Int         @id @default(autoincrement())
+  sense   JmDictSense @relation(fields: [senseId], references: [id])
+  senseId Int
+  text    String
+}
+
+model JmDictCrossReference {
+  id      Int         @id @default(autoincrement())
+  sense   JmDictSense @relation(fields: [senseId], references: [id])
+  senseId Int
+  text    String
+}
+
+model JmDictLanguageSource {
+  id       Int                       @id @default(autoincrement())
+  sense    JmDictSense               @relation(fields: [senseId], references: [id])
+  senseId  Int
+  language JmDictLang                @relation(fields: [lang], references: [id])
+  lang     String
+  text     String?
+  wasei    Boolean?
+  lsType   JmDictLanguageSourceType? @relation(fields: [type], references: [id])
+  type     String?
+}
+
+model JmDictLanguageSourceType {
+  id      String @id
+  meaning String
+
+  JmDictLanguageSources JmDictLanguageSource[]
+}
+
+model JmDictMisc {
+  id      String @id
+  meaning String
+
+  senses JmDictMiscOnJmDictSense[]
+}
+
+model JmDictSensePos {
+  id      String @id
+  meaning String
+
+  senses JmDictSensePosOnJmDictSense[]
+}
+
+model JmDictDialect {
+  id      String @id
+  meaning String
+
+  senses JmDictDialectOnJmDictSense[]
+}
+
+model JmDictReadingInfo {
+  id      String @id
+  meaning String
+
+  readings JmDictReadingInfoOnJmDictReading[]
+}
+
+model JmDictKanjiInfo {
+  id      String @id
+  meaning String
+
+  kanjis JmDictKanjiInfoOnJmDictKanji[]
+}
+
+model JmDictSenseField {
+  id      String @id
+  meaning String
+
+  senses JmDictSenseFieldOnJmDictSense[]
+}
+
+model JmDictLang {
+  id                    String                 @id
+  englishName           String
+  glosses               JmDictGloss[]
+  JmDictLanguageSources JmDictLanguageSource[]
+}
+
+model JmDictPriority {
+  id                              String                            @id
+  meaning                         String
+  JmDictPrioritiesOnJmDictReading JmDictPrioritiesOnJmDictReading[]
+  JmDictPrioritiesOnJmDictKanji   JmDictPrioritiesOnJmDictKanji[]
+}
+
+model JmDictGlossType {
+  id          String        @id
+  meaning     String
+  JmDictGloss JmDictGloss[]
+}
+
+model JmDictMiscOnJmDictSense {
+  JmDictSense   JmDictSense @relation(fields: [jmDictSenseId], references: [id])
+  jmDictSenseId Int
+  JmDictMisc    JmDictMisc  @relation(fields: [jmDictMiscId], references: [id])
+  jmDictMiscId  String
+
+  @@id([jmDictMiscId, jmDictSenseId])
+}
+
+model JmDictSensePosOnJmDictSense {
+  JmDictSensePos   JmDictSensePos @relation(fields: [jmDictSensePosId], references: [id])
+  jmDictSensePosId String
+  JmDictSense      JmDictSense    @relation(fields: [jmDictSenseId], references: [id])
+  jmDictSenseId    Int
+
+  @@id([jmDictSensePosId, jmDictSenseId])
+}
+
+model JmDictDialectOnJmDictSense {
+  JmDictDialect   JmDictDialect @relation(fields: [jmDictDialectId], references: [id])
+  jmDictDialectId String
+  JmDictSense     JmDictSense   @relation(fields: [jmDictSenseId], references: [id])
+  jmDictSenseId   Int
+
+  @@id([jmDictDialectId, jmDictSenseId])
+}
+
+model JmDictReadingInfoOnJmDictReading {
+  JmDictReadingInfo   JmDictReadingInfo @relation(fields: [jmDictReadingInfoId], references: [id])
+  jmDictReadingInfoId String
+  JmDictReading       JmDictReading     @relation(fields: [jmDictReadingId], references: [id])
+  jmDictReadingId     Int
+
+  @@id([jmDictReadingInfoId, jmDictReadingId])
+}
+
+model JmDictPrioritiesOnJmDictReading {
+  JmDictPriority   JmDictPriority @relation(fields: [jmDictPriorityId], references: [id])
+  jmDictPriorityId String
+  JmDictReading    JmDictReading  @relation(fields: [jmDictReadingId], references: [id])
+  jmDictReadingId  Int
+
+  @@id([jmDictPriorityId, jmDictReadingId])
+}
+
+model JmDictKanjiInfoOnJmDictKanji {
+  JmDictKanjiInfo   JmDictKanjiInfo @relation(fields: [jmDictKanjiInfoId], references: [id])
+  jmDictKanjiInfoId String
+  JmDictKanji       JmDictKanji     @relation(fields: [jmDictKanjiId], references: [id])
+  jmDictKanjiId     Int
+
+  @@id([jmDictKanjiInfoId, jmDictKanjiId])
+}
+
+model JmDictPrioritiesOnJmDictKanji {
+  JmDictPriority   JmDictPriority @relation(fields: [jmDictPriorityId], references: [id])
+  jmDictPriorityId String
+  JmDictKanji      JmDictKanji    @relation(fields: [jmDictKanjiId], references: [id])
+  jmDictKanjiId    Int
+
+  @@id([jmDictPriorityId, jmDictKanjiId])
+}
+
+model JmDictSenseFieldOnJmDictSense {
+  JmDictSenseField   JmDictSenseField @relation(fields: [jmDictSenseFieldId], references: [id])
+  jmDictSenseFieldId String
+  JmDictSense        JmDictSense      @relation(fields: [jmDictSenseId], references: [id])
+  jmDictSenseId      Int
+
+  @@id([jmDictSenseFieldId, jmDictSenseId])
+}
