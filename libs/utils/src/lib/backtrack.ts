@@ -86,28 +86,28 @@ interface Metadata {
 }
 
 export abstract class BacktrackSolver<State> {
-  private meta: Metadata = BacktrackSolver.baseMeta();
+  protected meta: Metadata = BacktrackSolver.baseMeta();
 
-  private readonly baseOptions: BacktrackSolverOptions;
+  protected readonly baseOptions: BacktrackSolverOptions;
 
-  private options: BacktrackSolverOptions;
+  protected options: BacktrackSolverOptions;
 
-  private startTime: number = -1;
+  protected startTime: number = -1;
 
   /** Full active tree */
-  private root!: Node<State>;
+  protected root!: Node<State>;
   /**
    * Path from the root to the current analyzed solution.
    */
-  private path: Node<State>[] = [];
+  protected path: Node<State>[] = [];
   /**
    * Path from the root to the current analyzed solution but only the states
    */
-  private statesPath: State[] = [];
+  protected statesPath: State[] = [];
   /**
    * List of found solutions
    */
-  private solutions: State[][] = [];
+  protected solutions: State[][] = [];
   /**
    * When `true` it stops the execution and return the result
    */
@@ -293,6 +293,28 @@ export function createBacktrackSolver<T>(
 ) {
   const solver = new BacktrackSolverWrapper(methods, baseOptions);
   return solver.run.bind(solver);
+}
+
+/**
+ * Small utility useful to debug to get a visual representation of the enum
+ * used for describing the stopping reason of the algorythm
+ */
+export function getStopReasonName(
+  stopReason: BacktrackSolverStopReason
+): string {
+  if (stopReason === BacktrackSolverStopReason.ALL_NODES_VISITED) {
+    return 'ALL_NODES_VISITED';
+  }
+  if (stopReason === BacktrackSolverStopReason.MAX_TIME_EXCEDED) {
+    return 'MAX_TIME_EXCEDED';
+  }
+  if (stopReason === BacktrackSolverStopReason.SOLUTION_FOUND) {
+    return 'SOLUTION_FOUND';
+  }
+  if (stopReason === BacktrackSolverStopReason.SOLUTION_NOT_FOUND) {
+    return 'SOLUTION_NOT_FOUND';
+  }
+  throw new Error(`Unknown BacktrackSolverStopReason "${stopReason}"`);
 }
 
 class BacktrackSolverWrapper<T> extends BacktrackSolver<T> {
