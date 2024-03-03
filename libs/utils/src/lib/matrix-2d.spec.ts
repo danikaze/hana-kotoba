@@ -126,6 +126,53 @@ describe('Matrix2D class', () => {
     });
   });
 
+  describe('equals', () => {
+    const matrix = Matrix2D.from([
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9],
+    ]);
+
+    it('should return false if size is different', () => {
+      const sameFirstRow = Matrix2D.from([[1, 2, 3]]);
+      expect(matrix.equals(sameFirstRow)).toBe(false);
+      expect(sameFirstRow.equals(matrix)).toBe(false);
+
+      const sameFirstColumn = Matrix2D.from([[1], [4], [7]]);
+      expect(matrix.equals(sameFirstColumn)).toBe(false);
+      expect(sameFirstColumn.equals(matrix)).toBe(false);
+    });
+
+    it('should return false if any value is different', () => {
+      const differentValue = matrix.clone();
+      differentValue.set(1, 1, 0);
+      expect(matrix.equals(differentValue)).toBe(false);
+      expect(differentValue.equals(matrix)).toBe(false);
+    });
+
+    it('should return true if every value is the same', () => {
+      const same = matrix.clone();
+      expect(matrix.equals(same)).toBe(true);
+      expect(same.equals(matrix)).toBe(true);
+    });
+
+    it('should return true comparing with itself', () => {
+      expect(matrix.equals(matrix)).toBe(true);
+    });
+
+    it('should return true on empty matrices', () => {
+      const empty1 = new Matrix2D(0, 0);
+      const empty2 = new Matrix2D(0, 0);
+      expect(empty1.equals(empty2)).toBe(true);
+    });
+
+    it('should return true on uninitialized matrices of the same size', () => {
+      const default1 = new Matrix2D(3, 4);
+      const default2 = new Matrix2D(3, 4);
+      expect(default1.equals(default2)).toBe(true);
+    });
+  });
+
   describe('transpose', () => {
     it('should "do nothing" on 0-sized matrices', () => {
       const m = new Matrix2D(0, 0);

@@ -70,6 +70,21 @@ export class Matrix2D<T> {
     return new Matrix2D(this.width(), this.height(), (i, j) => this.get(i, j));
   }
 
+  public equals(matrix: Matrix2D<T>): boolean {
+    if (this.width() !== matrix.width()) return false;
+    if (this.height() !== matrix.height()) return false;
+    let equal = true;
+    this.iterateHorizontally((cell, col, row) => {
+      if (matrix.get(col, row) !== cell) {
+        // sets the return value
+        equal = false;
+        // stops the iterations
+        return false;
+      }
+    });
+    return equal;
+  }
+
   public width(): number {
     if (this.data.length === 0) return 0;
     return this.data[0].length;
@@ -111,9 +126,11 @@ export class Matrix2D<T> {
    * 1 2 3
    * 4 5 6
    * 7 8 9
+   *
+   * If the callback explicitly returns `false`, it stops
    */
   public iterateHorizontally(
-    callback: (cell: T, col: number, row: number) => void
+    callback: (cell: T, col: number, row: number) => boolean | void
   ): void {
     const height = this.height();
     if (height === 0) return;
@@ -122,7 +139,7 @@ export class Matrix2D<T> {
     for (let j = 0; j < height; j++) {
       const row = this.data[j];
       for (let i = 0; i < width; i++) {
-        callback(row[i], i, j);
+        if (callback(row[i], i, j) === false) return;
       }
     }
   }
@@ -132,9 +149,11 @@ export class Matrix2D<T> {
    * 1 4 7
    * 2 5 8
    * 3 6 9
+   *
+   * If the callback explicitly returns `false`, it stops
    */
   public iterateVertically(
-    callback: (cell: T, col: number, row: number) => void
+    callback: (cell: T, col: number, row: number) => boolean | void
   ): void {
     const height = this.height();
     if (height === 0) return;
@@ -142,7 +161,7 @@ export class Matrix2D<T> {
     const width = this.width();
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
-        callback(this.data[j][i], i, j);
+        if (callback(this.data[j][i], i, j) === false) return;
       }
     }
   }
