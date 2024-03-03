@@ -1,4 +1,5 @@
 import {
+  BacktrackNode,
   BacktrackSolver,
   BacktrackSolverMethods,
   BacktrackSolverOptions,
@@ -114,3 +115,36 @@ const functionSolver = (() => {
 
 testWith('class', classRunner);
 testWith('function', functionSolver);
+
+describe('BacktrackSolver optional methods', () => {
+  class CombinationsFromLast extends Combinations {
+    public chooseNextState(
+      states: readonly BacktrackNode<number | undefined>[]
+    ): number {
+      return states.length - 1;
+    }
+  }
+
+  it('should allow chosing the next state', () => {
+    const solver = new CombinationsFromLast([1, 2, 3], { stopOnSolution: 0 });
+    const result = solver.run(undefined);
+
+    expect(result.meta.depth).toBe(3);
+    expect(result.meta.totalNodes).toBe(31);
+    expect(result.meta.visitedNodes).toBe(31);
+    expect(result.meta.openNodes).toBe(0);
+    expect(typeof result.meta.time).toBe('number');
+
+    expect(result.stopReason).toBe(BacktrackSolverStopReason.ALL_NODES_VISITED);
+
+    expect(result.solutions).toEqual([1, 2, 1, 3, 2, 3]);
+    expect(result.solutionPaths).toEqual([
+      [undefined, 3, 2, 1],
+      [undefined, 3, 1, 2],
+      [undefined, 2, 3, 1],
+      [undefined, 2, 1, 3],
+      [undefined, 1, 3, 2],
+      [undefined, 1, 2, 3],
+    ]);
+  });
+});

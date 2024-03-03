@@ -51,9 +51,22 @@ export interface BacktrackSolverResult<State> {
   stopReason: BacktrackSolverStopReason;
 }
 
-interface Node<State> {
+export interface BacktrackNode<State> {
   state: State;
-  children?: Node<State>[];
+  children?: BacktrackNode<State>[];
+}
+
+export interface BacktrackSolverOptionalMethods<State> {
+  /**
+   * Allows choosing the next state from the list of the current state's children
+   * when going deep.
+   * When not implemented, by default will keep iterating children in order (as a
+   * method that always returns `0`)
+   *
+   * An example of use case for this method is when not every solution is wanted
+   * but also some variation is required. It allows to not have the N first ones.
+   */
+  chooseNextState?: (states: Readonly<BacktrackNode<State>[]>) => number;
 }
 
 interface Metadata {
@@ -85,7 +98,9 @@ interface Metadata {
   time: number;
 }
 
-export abstract class BacktrackSolver<State> {
+export abstract class BacktrackSolver<State>
+  implements BacktrackSolverOptionalMethods<State>
+{
   protected meta: Metadata = BacktrackSolver.baseMeta();
 
   protected readonly baseOptions: BacktrackSolverOptions;
@@ -95,15 +110,20 @@ export abstract class BacktrackSolver<State> {
   protected startTime: number = -1;
 
   /** Full active tree */
-  protected root!: Node<State>;
+  protected root!: BacktrackNode<State>;
   /**
    * Path from the root to the current analyzed solution.
    */
-  protected path: Node<State>[] = [];
+  protected path: BacktrackNode<State>[] = [];
   /**
    * Path from the root to the current analyzed solution but only the states
    */
   protected statesPath: State[] = [];
+  /**
+   * Current child index used for each level
+   * (will be 0 for all unless `chooseNextState` is used)
+   */
+  protected openChildIndex: number[] = [];
   /**
    * List of found solutions
    */
@@ -156,6 +176,11 @@ export abstract class BacktrackSolver<State> {
       solutions: this.solutions.map((path) => path[path.length - 1]),
       meta: this.meta,
     };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public chooseNextState(states: readonly BacktrackNode<State>[]): number {
+    return 0;
   }
 
   public abstract expand(
@@ -244,12 +269,13 @@ export abstract class BacktrackSolver<State> {
 
   /**
    * Advance to the next child of the same level in the tree
-   * (always the first one as closed branches are removed to free memory)
    */
   private goWide(): void {
     const current = this.path[this.path.length - 1];
-    this.path.push(current.children![0]);
-    this.statesPath.push(current.children![0].state);
+    const index = this.chooseNextState(current.children!);
+    this.openChildIndex.push(index);
+    this.path.push(current.children![index]);
+    this.statesPath.push(current.children![index].state);
   }
 
   /**
@@ -264,8 +290,9 @@ export abstract class BacktrackSolver<State> {
     }
     const current = this.path[this.path.length - 1];
     if (!current.children) return;
-    this.meta.openNodes -= 1 + (current.children[0].children?.length || 0);
-    current.children.shift();
+    const index = this.openChildIndex.pop()!;
+    this.meta.openNodes -= 1 + (current.children[index].children?.length || 0);
+    current.children.splice(index, 1);
   }
 
   /**
