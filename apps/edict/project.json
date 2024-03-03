@@ -61,6 +61,15 @@
       "options": {
         "jestConfig": "apps/edict/jest.config.ts"
       }
+    },
+    "test:dev": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/edict/jest.config.ts",
+        "runInBand": true,
+        "watchAll": true
+      }
     }
   },
   "tags": []

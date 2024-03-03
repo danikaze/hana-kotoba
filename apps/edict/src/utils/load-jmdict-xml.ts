@@ -17,7 +17,7 @@ export async function loadJmDictXml(xmlFilePath: string): Promise<JmDict> {
     throw new Error(`Couldn't find the creation date in "${xmlFilePath}`);
   }
 
-  const xmlCachePath = getCachePath(`jmdict-${creationDate}.json`);
+  const xmlCachePath = getCachePath(creationDate, `jmdict.json`);
 
   if (existsSync(xmlCachePath)) {
     console.log(` - Loading json cached from ${basename(xmlCachePath)}`);

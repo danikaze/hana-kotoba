@@ -1,13 +1,17 @@
 import { existsSync } from 'fs';
 import { mkdirpSync } from 'mkdirp';
-import { join } from 'path';
+import { dirname, join } from 'path';
 
-export function getCachePath(filename?: string): string {
-  const cacheFolder = join(__dirname, '..', '..', '.cache');
+/**
+ * Get a normalized path to a cache file
+ */
+export function getCachePath(...path: string[]): string {
+  const fileName = join(__dirname, '..', '..', '.cache', ...path);
+  const cacheFolder = dirname(fileName);
 
   if (!existsSync(cacheFolder)) {
     mkdirpSync(cacheFolder);
   }
 
-  return filename ? join(cacheFolder, filename) : cacheFolder;
+  return fileName;
 }
