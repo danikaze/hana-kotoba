@@ -28,6 +28,7 @@
     "@nx/next": "17.2.8",
     "@prisma/client": "^5.9.1",
     "axios": "^1.0.0",
+    "bit-buffer": "^0.2.5",
     "clsx": "^2.1.0",
     "fast-xml-parser": "^4.3.3",
     "mkdirp": "^3.0.1",
