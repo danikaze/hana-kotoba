@@ -22,3 +22,7 @@ export function formatSize(bytes: number): string {
   const mb = kb / 1024;
   return `${mb.toFixed(2)}mb`;
 }
+
+export function formatNumber(n: number): string {
+  return n.toLocaleString();
+}

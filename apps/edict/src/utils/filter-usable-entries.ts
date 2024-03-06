@@ -7,6 +7,8 @@ import {
   JmDictSensePos,
 } from '@jmdict/types';
 
+import { formatNumber } from './format';
+
 interface UsableReading {
   reading: string;
   pri: JmDictRePri[];
@@ -40,7 +42,11 @@ export function filterUsableReadings(xml: JmDict): UsableReading[] {
     res.push({ reading, pri: Array.from(pri) });
   }
 
-  console.log(`   - ${res.length} / ${xml.entries.length} usable`);
+  console.log(
+    `   - ${formatNumber(res.length)} / ${formatNumber(
+      xml.entries.length
+    )} usable`
+  );
   return res;
 }
 

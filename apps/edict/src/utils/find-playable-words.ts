@@ -12,7 +12,7 @@ import { getCachePath } from './get-cache-path';
 import { IndexedWords } from './index-by-chars';
 import { isSubSet } from './is-subset';
 import { areAllCharsUsed } from './are-all-chars-used';
-import { formatSize, formatTime } from './format';
+import { formatNumber, formatSize, formatTime } from './format';
 
 /**
  * Interface for the data stored in the written file
@@ -52,9 +52,9 @@ export async function findPlayableWords(
   index: IndexedWords
 ): Promise<Record<string, string[]>> {
   console.log(
-    ` - Finding playable words from ${
+    ` - Finding playable words from ${formatNumber(
       Object.keys(index).length
-    } unique words with ${chars.length} chars...`
+    )} unique words with ${chars.length} chars...`
   );
 
   const cachePath = getCachePath(xmlCreationDate, 'playable-words.json');
@@ -72,10 +72,18 @@ export async function findPlayableWords(
     );
     const { hiragana, katakana } = state;
     if (hiragana) {
-      console.log(`     - hiragana: ${hiragana.done}/${hiragana.total}`);
+      console.log(
+        `     - hiragana: ${formatNumber(hiragana.done)}/${formatNumber(
+          hiragana.total
+        )}`
+      );
     }
     if (katakana) {
-      console.log(`     - katakana: ${katakana.done}/${katakana.total}`);
+      console.log(
+        `     - katakana: ${formatNumber(katakana.done)}/${formatNumber(
+          katakana.total
+        )}`
+      );
     }
   } else {
     console.log('     - no cache found');
