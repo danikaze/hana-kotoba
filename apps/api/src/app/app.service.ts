@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
+
 import { getGameData } from '@game';
+import { findMatrixWords } from '@game/find-matrix-words';
 import { serializeMatrixWords } from '@game/matrix-words';
 import { Matrix2D } from '@utils/matrix-2d';
 
@@ -15,7 +17,7 @@ export class AppService {
     return {
       k: data.kanas,
       w: serializeMatrixWords(
-        data.matrix,
+        findMatrixWords(data.matrix),
         process.env.NODE_ENV === 'production'
       ),
     };

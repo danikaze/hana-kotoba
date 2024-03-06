@@ -1,12 +1,7 @@
 import { BitView } from 'bit-buffer';
 import { Matrix2D } from '@utils/matrix-2d';
-
-export interface WordPosition {
-  word: string;
-  direction: 'v' | 'h';
-  col: number;
-  row: number;
-}
+import { WordPosition } from './find-matrix-words';
+import { getWordsUniqueChars } from './get-word-chars';
 
 export const EMPTY_CELL = '';
 
@@ -24,10 +19,9 @@ const DIRECTION_SEPARATOR = ':';
  * so they can be shared
  */
 export function serializeMatrixWords(
-  matrix: Readonly<Matrix2D<string>>,
+  words: WordPosition[],
   encode?: boolean
 ): string {
-  const words = findMatrixWords(matrix);
   return encode ? encodeWords(words) : serializeWords(words);
 }
 
@@ -140,7 +134,7 @@ function deserializeWord(
  *     (i.e. for 5 characters 3 bits are required))
  */
 function encodeWords(words: readonly WordPosition[]): string {
-  const chars = getUniqueChars(words);
+  const chars = getWordsUniqueChars(words);
   const bitsPerChar = bitsRequired(chars.length);
 
   // define the bits to write and their values
@@ -247,13 +241,6 @@ function bitReader(binaryString: string, chars: string): BitReader {
 }
 
 /**
- * Get the unique chars used by the given list of words
- */
-function getUniqueChars(words: readonly WordPosition[]): string[] {
-  return Array.from(new Set(words.flatMap((data) => data.word.split(''))));
-}
-
-/**
  * Get the number of bits required to represent the given unsigned number
  */
 function bitsRequired(unsignedNumber: number): number {
@@ -265,65 +252,4 @@ function bitsRequired(unsignedNumber: number): number {
     n++;
     max = max << 1;
   }
-}
-
-/**
- * Given a matrix, find all the words and return them with the needed
- * information to reconstruct the matrix later (position and orientation)
- */
-function findMatrixWords(matrix: Readonly<Matrix2D<string>>): WordPosition[] {
-  const words: WordPosition[] = [];
-  let word: string = '';
-  let startCol: number = -1;
-  let startRow: number = -1;
-
-  function addWord(direction: WordPosition['direction']): void {
-    // if it was only 1 letter, it was a vertical word crossed
-    if (word.length > 1) {
-      words.push({
-        direction,
-        word,
-        col: startCol,
-        row: startRow,
-      });
-    }
-
-    word = '';
-    startCol = -1;
-    startRow = -1;
-  }
-
-  function checkCell(direction: WordPosition['direction']) {
-    return (cell: string, col: number, row: number) => {
-      // line jump
-      if (
-        (direction === 'h' && startRow !== -1 && startRow !== row) ||
-        (direction === 'v' && startCol !== -1 && startCol !== col)
-      ) {
-        addWord(direction);
-      }
-
-      if (word) {
-        if (word && cell === EMPTY_CELL) {
-          // find the (possible) end of a word
-          addWord(direction);
-        } else {
-          // continue with the next character of a word
-          word += cell;
-        }
-        // find the (possible) start of a word
-      } else if (cell !== EMPTY_CELL) {
-        startCol = col;
-        startRow = row;
-        word = cell;
-      }
-    };
-  }
-
-  matrix.iterateHorizontally(checkCell('h'));
-  addWord('h');
-  matrix.iterateVertically(checkCell('v'));
-  addWord('v');
-
-  return words;
 }
