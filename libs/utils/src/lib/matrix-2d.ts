@@ -127,11 +127,12 @@ export class Matrix2D<T> {
    * 4 5 6
    * 7 8 9
    *
-   * If the callback explicitly returns `false`, it stops
+   * If the callback explicitly returns anything but `undefined`, it stops
+   * and returns that value
    */
-  public iterateHorizontally(
-    callback: (cell: T, col: number, row: number) => boolean | void
-  ): void {
+  public iterateHorizontally<R>(
+    callback: (cell: T, col: number, row: number) => R | void
+  ): R | void {
     const height = this.height();
     if (height === 0) return;
 
@@ -139,7 +140,8 @@ export class Matrix2D<T> {
     for (let j = 0; j < height; j++) {
       const row = this.data[j];
       for (let i = 0; i < width; i++) {
-        if (callback(row[i], i, j) === false) return;
+        const res = callback(row[i], i, j);
+        if (res !== undefined) return res;
       }
     }
   }
@@ -150,19 +152,58 @@ export class Matrix2D<T> {
    * 2 5 8
    * 3 6 9
    *
-   * If the callback explicitly returns `false`, it stops
+   * If the callback explicitly returns anything but `undefined`, it stops
+   * and returns that value
    */
-  public iterateVertically(
-    callback: (cell: T, col: number, row: number) => boolean | void
-  ): void {
+  public iterateVertically<R>(
+    callback: (cell: T, col: number, row: number) => R | void
+  ): R | void {
     const height = this.height();
     if (height === 0) return;
 
     const width = this.width();
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
-        if (callback(this.data[j][i], i, j) === false) return;
+        const res = callback(this.data[j][i], i, j);
+        if (res !== undefined) return res;
       }
+    }
+  }
+
+  /**
+   * Iterate the specified row as (i.e. row=1)
+   * x x x
+   * 1 2 3
+   * x x x
+   */
+  public iterateRow<R>(
+    row: number,
+    callback: (cell: T, col: number, row: number) => R | void
+  ): R | void {
+    const width = this.width();
+    const arr = this.data[row];
+
+    for (let col = 0; col < width; col++) {
+      const res = callback(arr[col], col, row);
+      if (res !== undefined) return res;
+    }
+  }
+
+  /**
+   * Iterate the specified column as (i.e. col=1)
+   * x 1 x
+   * x 2 x
+   * x 3 x
+   */
+  public iterateCol<R>(
+    col: number,
+    callback: (cell: T, col: number, row: number) => R | void
+  ): R | void {
+    const height = this.height();
+
+    for (let row = 0; row < height; row++) {
+      const res = callback(this.data[row][col], col, row);
+      if (res !== undefined) return res;
     }
   }
 

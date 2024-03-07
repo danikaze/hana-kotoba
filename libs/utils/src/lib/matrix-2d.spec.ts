@@ -264,6 +264,98 @@ describe('Matrix2D class', () => {
       expect(cb).toHaveBeenNthCalledWith(5, 3, 2, 0);
       expect(cb).toHaveBeenNthCalledWith(6, 6, 2, 1);
     });
+
+    it('should iterate rows', () => {
+      const m = Matrix2D.from([
+        [1, 2, 3],
+        [4, 5, 6],
+      ]);
+      const cb = jest.fn();
+
+      m.iterateRow(1, cb);
+      expect(cb).toHaveBeenCalledTimes(3);
+      expect(cb).toHaveBeenNthCalledWith(1, 4, 0, 1);
+      expect(cb).toHaveBeenNthCalledWith(2, 5, 1, 1);
+      expect(cb).toHaveBeenNthCalledWith(3, 6, 2, 1);
+    });
+
+    it('should iterate columns', () => {
+      const m = Matrix2D.from([
+        [1, 2, 3],
+        [4, 5, 6],
+      ]);
+      const cb = jest.fn();
+
+      m.iterateCol(1, cb);
+      expect(cb).toHaveBeenCalledTimes(2);
+      expect(cb).toHaveBeenNthCalledWith(1, 2, 1, 0);
+      expect(cb).toHaveBeenNthCalledWith(2, 5, 1, 1);
+    });
+
+    it('should allow returns from iterateVertically', () => {
+      const m = Matrix2D.from([
+        [1, 2, 3],
+        [4, 5, 6],
+      ]);
+
+      const cb = jest.fn((x) => {
+        if (x === 4) return x;
+      });
+      const res = m.iterateVertically(cb);
+      expect(res).toBe(4);
+      expect(cb).toHaveBeenCalledTimes(2);
+      expect(cb).toHaveBeenNthCalledWith(1, 1, 0, 0);
+      expect(cb).toHaveBeenNthCalledWith(2, 4, 0, 1);
+    });
+
+    it('should allow returns from iterateHorizontally', () => {
+      const m = Matrix2D.from([
+        [1, 2, 3],
+        [4, 5, 6],
+      ]);
+
+      const cb = jest.fn((x) => {
+        if (x === 4) return x;
+      });
+      const res = m.iterateHorizontally(cb);
+      expect(res).toBe(4);
+      expect(cb).toHaveBeenCalledTimes(4);
+      expect(cb).toHaveBeenNthCalledWith(1, 1, 0, 0);
+      expect(cb).toHaveBeenNthCalledWith(2, 2, 1, 0);
+      expect(cb).toHaveBeenNthCalledWith(3, 3, 2, 0);
+      expect(cb).toHaveBeenNthCalledWith(4, 4, 0, 1);
+    });
+
+    it('should allow returns from iterateRow', () => {
+      const m = Matrix2D.from([
+        [1, 2, 3],
+        [4, 5, 6],
+      ]);
+
+      const cb = jest.fn((x) => {
+        if (x === 2) return x;
+      });
+      const res = m.iterateRow(0, cb);
+      expect(res).toBe(2);
+      expect(cb).toHaveBeenCalledTimes(2);
+      expect(cb).toHaveBeenNthCalledWith(1, 1, 0, 0);
+      expect(cb).toHaveBeenNthCalledWith(2, 2, 1, 0);
+    });
+
+    it('should allow returns from iterateCol', () => {
+      const m = Matrix2D.from([
+        [1, 2, 3],
+        [4, 5, 6],
+      ]);
+
+      const cb = jest.fn((x) => {
+        if (x === 3) return x;
+      });
+      const res = m.iterateCol(2, cb);
+      expect(res).toBe(3);
+      expect(cb).toHaveBeenCalledTimes(1);
+      expect(cb).toHaveBeenNthCalledWith(1, 3, 2, 0);
+    });
   });
 
   describe('addRow', () => {
