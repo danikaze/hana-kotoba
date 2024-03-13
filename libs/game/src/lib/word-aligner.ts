@@ -11,7 +11,7 @@ interface State {
 }
 
 export class WordAligner extends BacktrackSolver<State> {
-  public expand(state: Readonly<State>): readonly State[] {
+  expand = (state: Readonly<State>): readonly State[] => {
     return state.words.flatMap((word, index) => {
       const words = state.words
         .slice(0, index)
@@ -21,7 +21,7 @@ export class WordAligner extends BacktrackSolver<State> {
         matrix,
       }));
     });
-  }
+  };
 
   public isValid(): boolean {
     return true;
