@@ -10,7 +10,12 @@ export function formatTime(ms: number): string {
   const fh = h > 0 ? `${h}h ` : '';
   const fm = m > 0 ? `${m.toString().padStart(h === 0 ? 1 : 2, '0')}m ` : '';
   const fs = `${s.toString().padStart(fm === '' ? 1 : 2, '0')}s`;
-  const fms = fm === '' ? ` ${(ms % 1000).toString().padStart(3, '0')}ms` : '';
+  const fms =
+    fm === ''
+      ? ` ${Math.round(ms % 1000)
+          .toString()
+          .padStart(3, '0')}ms`
+      : '';
 
   return `${fh}${fm}${fs}${fms}`;
 }
@@ -25,4 +30,8 @@ export function formatSize(bytes: number): string {
 
 export function formatNumber(n: number): string {
   return n.toLocaleString();
+}
+
+export function formatPctg(ratio: number): string {
+  return (100 * ratio).toFixed(2) + '%';
 }
