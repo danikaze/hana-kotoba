@@ -75,5 +75,27 @@ describe('getWordsNeededChars', () => {
       'け',
       'く',
     ]);
+
+    expect(
+      getWordsNeededChars([
+        'いと',
+        'いね',
+        'とう',
+        'とうぶ',
+        'とい',
+        'いう',
+      ]).sort()
+    ).toEqual(['い', 'う', 'と', 'ね', 'ぶ'].sort());
+
+    expect(
+      getWordsNeededChars([
+        'ひび',
+        'かし',
+        'かしつ',
+        'しか',
+        'しつ',
+        'つか',
+      ]).sort()
+    ).toEqual(['ひ', 'び', 'か', 'し', 'つ'].sort());
   });
 });
