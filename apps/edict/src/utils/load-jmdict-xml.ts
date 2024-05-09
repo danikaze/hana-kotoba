@@ -8,7 +8,9 @@ import { JmDict } from '@jmdict/types';
 
 import { getCachePath } from './get-cache-path';
 
-export async function loadJmDictXml(xmlFilePath: string): Promise<JmDict> {
+export async function loadJmDictXml(
+  xmlFilePath: string
+): Promise<Required<JmDict>> {
   const xmlStringData = (await readFile(xmlFilePath)).toString();
   const creationDate = await getCreationDate(xmlStringData, true);
   let jmDict: JmDict;
@@ -30,5 +32,5 @@ export async function loadJmDictXml(xmlFilePath: string): Promise<JmDict> {
     await writeFile(xmlCachePath, JSON.stringify(jmDict, null, 2));
   }
 
-  return jmDict;
+  return jmDict as Required<JmDict>;
 }

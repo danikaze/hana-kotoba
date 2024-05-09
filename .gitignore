@@ -2,7 +2,6 @@
 
 # Specific project files to ignore
 apps/edict/.cache
-apps/edict/src/indexed-usable-words.json
 .env
 
 # compiled output

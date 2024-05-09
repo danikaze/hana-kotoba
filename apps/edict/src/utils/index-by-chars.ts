@@ -1,12 +1,16 @@
 /**
- * length -> chars -> words[]
+ * chars -> words[]
  */
 export type IndexedWords = Record<string, string[]>;
 
-export function indexByChars(words: string[]): {
-  index: IndexedWords;
+export interface WordIndex {
+  /** List of different chars used by every word */
   chars: string;
-} {
+  /** The given words, indexed by chars */
+  index: IndexedWords;
+}
+
+export function indexByChars(words: string[]): WordIndex {
   console.log(' - Indexing words...');
 
   const index: IndexedWords = {};
