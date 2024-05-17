@@ -3,6 +3,7 @@ import {
   BacktrackSolver,
   NO_STATE_AVAILABLE,
   BacktrackSolverStopReason,
+  BacktrackNodeType,
 } from '.';
 
 type SudokuState = { board: Matrix2D<number | (typeof SudokuSolver)['EMPTY']> };
@@ -36,18 +37,13 @@ class SudokuSolver<
     return res;
   };
 
-  /**
-   * Only valid states are expanded so, every state should be valid
-   */
-  public isValid(): boolean {
-    return true;
-  }
-
-  /**
-   * It's a solution when there's no empty cells
-   */
-  public isSolution(state: Readonly<SudokuState>): boolean {
-    return !SudokuSolver.findFirstEmpty(state);
+  public checkNode(state: Readonly<SudokuState>): BacktrackNodeType {
+    // It's a solution when there's no empty cells
+    if (!SudokuSolver.findFirstEmpty(state)) {
+      return BacktrackNodeType.SOLUTION_AND_BACK;
+    }
+    // Only valid states are expanded so, every state should be valid
+    return BacktrackNodeType.NON_SOLUTION;
   }
 
   /**

@@ -1,4 +1,8 @@
-import { BacktrackNode, BacktrackSolver } from '@utils/backtrack';
+import {
+  BacktrackNode,
+  BacktrackNodeType,
+  BacktrackSolver,
+} from '@utils/backtrack';
 import { Matrix2D } from '@utils/matrix-2d';
 import { EMPTY_CELL } from './matrix-words';
 
@@ -27,11 +31,10 @@ export class WordAligner extends BacktrackSolver<State> {
     });
   };
 
-  public isValid(): boolean {
-    return true;
-  }
-
-  public isSolution(state: Readonly<State>, path: Readonly<State[]>): boolean {
+  public checkNode(
+    state: Readonly<State>,
+    path: Readonly<State[]>
+  ): BacktrackNodeType {
     const areSolutionsFound = this.solutions.length > 0;
     // consider only unique solutions, as some solution can be
     // reached with different paths
@@ -59,7 +62,12 @@ export class WordAligner extends BacktrackSolver<State> {
       this.partialSolutions = [];
     }
 
-    return isFullSolution;
+    if (isFullSolution) {
+      return BacktrackNodeType.SOLUTION_AND_BACK;
+    }
+
+    // otherwise, the node is always valid
+    return BacktrackNodeType.NON_SOLUTION;
   }
 
   chooseNextState = (states: readonly BacktrackNode<State>[]): number => {

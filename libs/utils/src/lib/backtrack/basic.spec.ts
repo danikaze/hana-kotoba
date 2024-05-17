@@ -1,4 +1,5 @@
 import {
+  BacktrackNodeType,
   BacktrackSolver,
   BacktrackSolverMethods,
   BacktrackSolverOptions,
@@ -22,19 +23,19 @@ export class Combinations extends BacktrackSolver<
     return this.pool;
   };
 
-  public isValid(
+  public checkNode(
     state: number,
     path: Readonly<(undefined | number)[]>
-  ): boolean {
+  ): BacktrackNodeType {
     // is valid if it contains no duplicates
-    return new Set(path).size === path.length;
-  }
-
-  public isSolution(
-    state: number,
-    path: Readonly<(undefined | number)[]>
-  ): boolean {
-    return path.length === this.pool.length + 1;
+    if (new Set(path).size !== path.length) {
+      return BacktrackNodeType.INVALID;
+    }
+    // it's a solution if it's reached its length
+    if (path.length === this.pool.length + 1) {
+      return BacktrackNodeType.SOLUTION_AND_BACK;
+    }
+    return BacktrackNodeType.NON_SOLUTION;
   }
 
   public stateToSolution = (
@@ -118,12 +119,16 @@ const functionSolver = (() => {
     expand: () => {
       return pool;
     },
-    isValid: (state, path): boolean => {
+    checkNode: (state, path): BacktrackNodeType => {
       // is valid if it contains no duplicates
-      return new Set(path).size === path.length;
-    },
-    isSolution: (state, path): boolean => {
-      return path.length === pool.length + 1;
+      if (new Set(path).size !== path.length) {
+        return BacktrackNodeType.INVALID;
+      }
+      // it's a solution if it's reached its length
+      if (path.length === pool.length + 1) {
+        return BacktrackNodeType.SOLUTION_AND_BACK;
+      }
+      return BacktrackNodeType.NON_SOLUTION;
     },
     stateToSolution: (
       state: Readonly<number | undefined>,

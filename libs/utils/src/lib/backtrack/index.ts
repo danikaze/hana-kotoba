@@ -18,6 +18,13 @@ export enum BacktrackSolverOp {
   GO_BACK = 'GB',
 }
 
+export enum BacktrackNodeType {
+  NON_SOLUTION = 'C',
+  INVALID = 'B',
+  SOLUTION_AND_BACK = 'SB',
+  SOLUTION_AND_CONTINUE = 'SC',
+}
+
 export interface BacktrackSolverOptions {
   /**
    * By default it will stop after founding the first solution
@@ -268,15 +275,17 @@ export abstract class BacktrackSolver<State, ResultData = State> {
     return snap;
   }
 
-  public abstract isValid(
+  /**
+   * Decision maker for each node
+   * - `NON_SOLUTION`: Will continue checking the node's children
+   * - `INVALID`: Will close the node and backtrack
+   * - `SOLUTION_AND_BACK`: Will add the node's state as a solution and backtrack
+   * - `SOLUTION_AND_CONTINUE`: Will add the node's state as a solution and continue checking its children
+   */
+  public abstract checkNode(
     state: Readonly<State>,
     path: Readonly<State[]>
-  ): boolean;
-
-  public abstract isSolution(
-    state: Readonly<State>,
-    path: Readonly<State[]>
-  ): boolean;
+  ): BacktrackNodeType;
 
   /**
    * Object to be used to reset the metadata before each run
@@ -429,21 +438,28 @@ export abstract class BacktrackSolver<State, ResultData = State> {
     // the 1st time a node is visited is known because the children are not defined yet
     if (!current.children) {
       this.meta.visitedNodes++;
+
+      const nodeType = this.checkNode(current.state, this.statesPath);
       // invalid nodes close the branch
-      if (!this.isValid(current.state, this.statesPath)) {
+      if (nodeType === BacktrackNodeType.INVALID) {
         this.goBack();
         return;
       }
 
       // solutions need to be added (only once, therefore here)
-      // and also close the branch (every solution is supposed to be a leaf)
-      if (this.isSolution(current.state, this.statesPath)) {
+      if (
+        nodeType === BacktrackNodeType.SOLUTION_AND_BACK ||
+        nodeType === BacktrackNodeType.SOLUTION_AND_CONTINUE
+      ) {
         const data = this.stateToSolution
           ? this.stateToSolution(current.state, this.statesPath)
           : (current.state as unknown as ResultData);
         this.addSolution(data);
-        this.goBack();
-        return;
+
+        if (nodeType === BacktrackNodeType.SOLUTION_AND_BACK) {
+          this.goBack();
+          return;
+        }
       }
 
       // go into the node expanding its children
@@ -561,8 +577,7 @@ export abstract class BacktrackSolver<State, ResultData = State> {
 export type BacktrackSolverMethods<S, R = S> = Pick<
   BacktrackSolver<S, R>,
   | 'expand'
-  | 'isValid'
-  | 'isSolution'
+  | 'checkNode'
   | 'chooseNextState'
   | 'expandOne'
   | 'onIteration'
@@ -633,8 +648,7 @@ class BacktrackSolverWrapper<S, R = S> extends BacktrackSolver<S, R> {
   ) {
     super(options);
 
-    this.isValid = methods.isValid.bind(this);
-    this.isSolution = methods.isSolution.bind(this);
+    this.checkNode = methods.checkNode.bind(this);
 
     if (methods.chooseNextState) {
       this.chooseNextState = methods.chooseNextState.bind(this);
@@ -653,14 +667,14 @@ class BacktrackSolverWrapper<S, R = S> extends BacktrackSolver<S, R> {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public expand = (state: Readonly<S>, path: readonly S[]): readonly S[] => {
-    throw new Error('method expand not defined');
+  public checkNode = (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    state: Readonly<S>,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    path: readonly S[]
+  ): BacktrackNodeType => {
+    throw new Error('method checkNode not defined');
   };
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public isValid(state: Readonly<S>, path: readonly S[]): boolean {
-    throw new Error('method isValid not defined');
-  }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public isSolution(state: Readonly<S>, path: readonly S[]): boolean {
     throw new Error('method isSolution not defined');
