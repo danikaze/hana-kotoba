@@ -13,6 +13,7 @@
     "edict:seed": "ts-node -r tsconfig-paths/register --project apps/edict/tsconfig.json apps/edict/src/seed.ts",
     "edict:find-words": "ts-node -r tsconfig-paths/register --project apps/edict/tsconfig.json apps/edict/src/find-combinable-words.ts",
     "edict:find-games": "ts-node -r tsconfig-paths/register --project apps/edict/tsconfig.json apps/edict/src/find-playable-games.ts",
+    "edict:generate-games": "ts-node -r tsconfig-paths/register --project apps/edict/tsconfig.json apps/edict/src/generate-game-data.ts",
     "edict:test": "nx run edict:test",
     "edict:test:dev": "nx run edict:test:dev",
     "web:dev": "nx run web:serve:development",

@@ -1,6 +1,7 @@
 import { isMixedKana } from '@utils/jp';
 import { charsUnion } from './chars-union';
 import { formatNumber, formatPctg, formatTime } from './format';
+import { getCombinedLevel } from './get-combined-level';
 import { ReadingMetaData } from './get-reading-meta';
 import {
   IndexedWords,
@@ -66,21 +67,6 @@ class CombinableWordsFinder {
     // prepare the result with the proper format
     const res = this.wordListToCombinableWords(wordList);
     return res;
-  }
-
-  /**
-   * Given the list of words and the pre-processed metadata object,
-   * calculate the level of a game with the given words
-   * In this case is the average but each level weights exponentially
-   */
-  private static getCombinedLevel(
-    meta: Map<string, ReadingMetaData>,
-    words: Readonly<string[]>
-  ): number {
-    const levels = words.map((word) => meta.get(word)!.level);
-    return (
-      levels.reduce((total, level) => total + level * level, 0) / levels.length
-    );
   }
 
   /**
@@ -278,7 +264,7 @@ class CombinableWordsFinder {
       res.push({
         chars,
         words,
-        level: CombinableWordsFinder.getCombinedLevel(this.options.meta, words),
+        level: getCombinedLevel(this.options.meta, words),
       });
       return res;
     }, [] as CombinableWords[]);
