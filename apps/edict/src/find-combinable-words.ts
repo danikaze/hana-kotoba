@@ -29,10 +29,10 @@ const MAX_LEVEL = 1;
  * - filterReadings
  *   - only "well used words" and with proper length, etc. (fast, no cache needed)
  * - add metadata (level, etc.) to the readings (fast)
- * - combinePlayableWords
+ * - findCombinableWords
  *   - check which words could be used together to create board games
- *   - caches found solutions in `combine-solutions-MIN_LEVEL-MAX_LEVEL`
- *   - caches the progress in `combine-progress-MIN_LEVEL-MAX_LEVEL`
+ *   - caches found solutions in `find-combinable-words-solutions-MIN_LEVEL-MAX_LEVEL`
+ *   - caches the progress in `find-combinable-words-progress-MIN_LEVEL-MAX_LEVEL`
  *
  * Note that every cached file is stored in `.cache/${xml.creationDate}` so its
  * consistent with the XML version, and it's not added to the git repo

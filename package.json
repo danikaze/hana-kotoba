@@ -12,7 +12,6 @@
     "game:test:dev": "nx run game:test:dev",
     "edict:seed": "ts-node -r tsconfig-paths/register --project apps/edict/tsconfig.json apps/edict/src/seed.ts",
     "edict:find-words": "ts-node -r tsconfig-paths/register --project apps/edict/tsconfig.json apps/edict/src/find-combinable-words.ts",
-    "edict:find-games": "ts-node -r tsconfig-paths/register --project apps/edict/tsconfig.json apps/edict/src/find-playable-games.ts",
     "edict:generate-games": "ts-node -r tsconfig-paths/register --project apps/edict/tsconfig.json apps/edict/src/generate-game-data.ts",
     "edict:seed-games": "ts-node -r tsconfig-paths/register --project apps/edict/tsconfig.json apps/edict/src/seed-games.ts",
     "edict:test": "nx run edict:test",
