@@ -6,8 +6,7 @@ import {
   JmDictSenseElement,
   JmDictSensePos,
 } from '@jmdict/types';
-
-import { formatNumber } from './format';
+import { formatNumber } from '@utils/format';
 
 interface UsableReading {
   reading: string;

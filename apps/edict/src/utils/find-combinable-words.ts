@@ -1,6 +1,7 @@
 import { isMixedKana } from '@utils/jp';
+import { formatNumber, formatPctg, formatTime } from '@utils/format';
+
 import { charsUnion } from './chars-union';
-import { formatNumber, formatPctg, formatTime } from './format';
 import { getCombinedLevel } from './get-combined-level';
 import { ReadingMetaData } from './get-reading-meta';
 import {

@@ -1,4 +1,4 @@
-import { formatTime } from './format';
+import { formatTime } from '@utils/format';
 
 /**
  * length -> chars -> words[]

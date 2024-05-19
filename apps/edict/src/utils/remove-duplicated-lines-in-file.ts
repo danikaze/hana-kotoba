@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from 'fs';
-import { formatTime, formatNumber, formatSize } from './format';
 import { basename } from 'path';
+import { formatTime, formatNumber, formatSize } from '@utils/format';
 
 /**
  * Remove duplicate lines from the given file

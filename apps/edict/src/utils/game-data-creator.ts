@@ -5,13 +5,19 @@ import { basename } from 'path';
 import { WordPosition, findMatrixWords } from '@game/find-matrix-words';
 import { getWordsNeededChars } from '@game/get-word-chars';
 import { EMPTY_CELL, serializeMatrixWords } from '@game/matrix-words';
+import { GameData } from '@game/model/seed';
 import { WordAligner } from '@game/word-aligner';
 import { JmDict } from '@jmdict/types';
 import { permute } from '@utils/backtrack/permute';
+import {
+  formatNumber,
+  formatPctg,
+  formatSize,
+  formatTime,
+} from '@utils/format';
 import { Matrix2D } from '@utils/matrix-2d';
 
 import { filterReadings } from './filter-readings';
-import { formatNumber, formatPctg, formatSize, formatTime } from './format';
 import { getCombinedLevel } from './get-combined-level';
 import { ReadingMetaData } from './get-reading-meta';
 import { getUsableReadingsMeta } from './get-usable-readings-meta';
@@ -46,15 +52,6 @@ type BestUsableMatrixResult = {
   chars: string;
   wordPositions: WordPosition[];
 };
-
-interface GameData {
-  // normalized (sorted) chars
-  chars: string;
-  serializedMatrix: string;
-  encodedMatrix: string;
-  level: number;
-  words: readonly string[];
-}
 
 interface ProgressData {
   processedLines: number;

@@ -1,6 +1,6 @@
 import { JmDict } from '@jmdict/types';
+import { formatNumber, formatPctg } from '@utils/format';
 import { filterUsableReadings } from './filter-usable-entries';
-import { formatNumber, formatPctg } from './format';
 import { ReadingMetaData, getReadingMeta } from './get-reading-meta';
 
 /**

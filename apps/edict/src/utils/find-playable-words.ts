@@ -7,12 +7,12 @@ import {
   isHiragana,
   isKatakana,
 } from '@utils/jp';
+import { formatNumber, formatSize, formatTime } from '@utils/format';
 
 import { getCachePath } from './get-cache-path';
 import { IndexedWords } from './index-by-chars';
 import { isSubSet } from './is-subset';
 import { areAllCharsUsed } from './are-all-chars-used';
-import { formatNumber, formatSize, formatTime } from './format';
 
 /**
  * Interface for the data stored in the written file
