@@ -1,13 +1,14 @@
+import { BitView } from 'bit-buffer';
 import { Matrix2D } from '@utils/matrix-2d';
-
-export interface WordPosition {
-  word: string;
-  direction: 'v' | 'h';
-  col: number;
-  row: number;
-}
+import { WordPosition } from './find-matrix-words';
+import { getWordsUniqueChars } from './get-word-chars';
 
 export const EMPTY_CELL = '';
+
+interface BitReader {
+  read: (nbits: number) => number;
+  readWord: (direction: WordPosition['direction']) => WordPosition;
+}
 
 const DATA_SEPARATOR = ',';
 const WORD_SEPARATOR = ';';
@@ -18,10 +19,9 @@ const DIRECTION_SEPARATOR = ':';
  * so they can be shared
  */
 export function serializeMatrixWords(
-  matrix: Readonly<Matrix2D<string>>,
+  words: WordPosition[],
   encode?: boolean
 ): string {
-  const words = findMatrixWords(matrix);
   return encode ? encodeWords(words) : serializeWords(words);
 }
 
@@ -75,7 +75,9 @@ export function matrixFromPositionedWords(
 }
 
 /**
- * Given a list of words data, serialize them into a plain string
+ * Given a list of words data, serialize them into a plain string:
+ * format= `${HORIZONTAL_WORD_LIST}:${VERTICAL_WORD_LIST}`
+ * WORD_LIST= `${col},${row},${word}` (join with `;`)
  */
 function serializeWords(words: readonly WordPosition[]): string {
   const h = words
@@ -117,71 +119,137 @@ function deserializeWord(
   };
 }
 
+/**
+ * Given a list of words data, serialize/obfuscate them into a plain string,
+ * which is just the list of available characters + a semi-colon (;) and then
+ * the encoded string in base32 of the bit-array with the following fields:
+ * - [8b]: Number of total words (`W`)
+ * - [8b]: Number of horizontal words (`H`)
+ * - List of words (the first `H` are horizontal, the rest (`W-H`) are vertical):
+ *   - [8b]: Column index
+ *   - [8b]: Row index
+ *   - [8b]: Length of the word
+ *   - List of characters of the word (each character taking the number of bits
+ *     required to cover the index of the available character
+ *     (i.e. for 5 characters 3 bits are required))
+ */
 function encodeWords(words: readonly WordPosition[]): string {
-  return serializeWords(words);
-}
+  const chars = getWordsUniqueChars(words);
+  const bitsPerChar = bitsRequired(chars.length);
 
-function decodeWords(str: string): WordPosition[] {
-  return deserializeMatrixWords(str);
+  // define the bits to write and their values
+  const bits: [nBits: number, value: number][] = [];
+  // 8 bits for the number of total words
+  bits.push([8, words.length]);
+  // 8 bits for the number of horizontal words
+  bits.push([8, words.filter((word) => word.direction === 'h').length]);
+  // list of words
+  for (const { word, col, row } of words) {
+    // column, row and length of the word (8 bits each)
+    bits.push([8, col], [8, row], [8, word.length]);
+    // list of characters
+    for (const char of word) {
+      bits.push([bitsPerChar, chars.indexOf(char)]);
+    }
+  }
+
+  // write the bits into the buffer
+  const totalBits = bits.reduce((total, [n]) => total + n, 0);
+  const buffer = new BitView(new ArrayBuffer(Math.ceil(totalBits / 8)));
+  let offset = 0;
+  for (const [nbits, value] of bits) {
+    buffer.setBits(offset, value, nbits);
+    offset += nbits;
+  }
+
+  // read the buffer to create the output string
+  const bufferBits = buffer.byteLength * 8;
+  let str = `${chars.join('')}${DATA_SEPARATOR}`;
+  for (let i = 0; i < bufferBits; i += 5) {
+    const read = Math.min(5, bufferBits - i);
+    const n = buffer.getBits(i, read);
+    str += n.toString(32);
+  }
+
+  return str;
 }
 
 /**
- * Given a matrix, find all the words and return them with the needed
- * information to reconstruct the matrix later (position and orientation)
+ * Get the original data from an encoded string with `encodeWords`
  */
-function findMatrixWords(matrix: Readonly<Matrix2D<string>>): WordPosition[] {
+function decodeWords(str: string): WordPosition[] {
+  const [chars, binary] = str.split(DATA_SEPARATOR);
+  const buffer = bitReader(binary, chars);
+  const nWords = buffer.read(8);
+  const horizontalWords = buffer.read(8);
   const words: WordPosition[] = [];
-  let word: string = '';
-  let startCol: number = -1;
-  let startRow: number = -1;
 
-  function addWord(direction: WordPosition['direction']): void {
-    // if it was only 1 letter, it was a vertical word crossed
-    if (word.length > 1) {
-      words.push({
-        direction,
-        word,
-        col: startCol,
-        row: startRow,
-      });
-    }
-
-    word = '';
-    startCol = -1;
-    startRow = -1;
+  for (let i = 0; i < nWords; i++) {
+    const word = buffer.readWord(i < horizontalWords ? 'h' : 'v');
+    words.push(word);
   }
-
-  function checkCell(direction: WordPosition['direction']) {
-    return (cell: string, col: number, row: number) => {
-      // line jump
-      if (
-        (direction === 'h' && startRow !== -1 && startRow !== row) ||
-        (direction === 'v' && startCol !== -1 && startCol !== col)
-      ) {
-        addWord(direction);
-      }
-
-      if (word) {
-        if (word && cell === EMPTY_CELL) {
-          // find the (possible) end of a word
-          addWord(direction);
-        } else {
-          // continue with the next character of a word
-          word += cell;
-        }
-        // find the (possible) start of a word
-      } else if (cell !== EMPTY_CELL) {
-        startCol = col;
-        startRow = row;
-        word = cell;
-      }
-    };
-  }
-
-  matrix.iterateHorizontally(checkCell('h'));
-  addWord('h');
-  matrix.iterateVertically(checkCell('v'));
-  addWord('v');
 
   return words;
+}
+
+/**
+ * Utility to replace the huge code from `BitStream` with only
+ * the required features
+ */
+function bitReader(binaryString: string, chars: string): BitReader {
+  const bitsPerChar = bitsRequired(chars.length);
+  const array = binaryString.split('').map((char) => parseInt(char, 32));
+
+  // populate the array value to value, as it looks like it doesn't get the
+  // correct value when assigning `array` directly
+  const bufferBits = array.length * 5;
+  const buffer = new BitView(new ArrayBuffer(Math.ceil(bufferBits / 8)));
+  for (let i = 0; i < array.length; i++) {
+    const write = Math.min(5, bufferBits - i);
+    buffer.setBits(i * 5, array[i], write);
+  }
+
+  let offsetBits = 0;
+  const read = (nbits: number): number => {
+    const res = buffer.getBits(offsetBits, nbits);
+    offsetBits += nbits;
+    return res;
+  };
+
+  const readWord = (direction: WordPosition['direction']): WordPosition => {
+    const col = read(8);
+    const row = read(8);
+    const length = read(8);
+    let word = '';
+    for (let i = 0; i < length; i++) {
+      const index = read(bitsPerChar);
+      word += chars[index];
+    }
+
+    return {
+      col,
+      row,
+      word,
+      direction,
+    };
+  };
+
+  return {
+    read,
+    readWord,
+  };
+}
+
+/**
+ * Get the number of bits required to represent the given unsigned number
+ */
+function bitsRequired(unsignedNumber: number): number {
+  let n = 1;
+  let max = 2;
+
+  for (;;) {
+    if (max >= unsignedNumber) return n;
+    n++;
+    max = max << 1;
+  }
 }

@@ -17,6 +17,8 @@
     "paths": {
       "@game": ["libs/game/src/lib"],
       "@game/*": ["libs/game/src/lib/*"],
+      "@jmdict": ["libs/jmdict/src/lib"],
+      "@jmdict/*": ["libs/jmdict/src/lib/*"],
       "@utils": ["libs/utils/src/lib"],
       "@utils/*": ["libs/utils/src/lib/*"]
     },

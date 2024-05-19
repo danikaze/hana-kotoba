@@ -3,14 +3,13 @@ import { existsSync, readFileSync, writeFileSync } from 'fs';
 
 import { isFullHiragana } from '@utils/jp';
 import { elemToArray } from '@utils/elem-to-array';
-
 import {
-  JmDictEntry,
-  JmDictReadingElement,
-  JmDictSense,
-  JmDictSensePos,
-  JmDictXml,
-} from './jmedict';
+  XmlJmDictEntry,
+  XmlJmDictReadingElement,
+  XmlJmDictSense,
+  XmlJmDictSensePos,
+  XmlJmDictXml,
+} from '@jmdict/xml-types';
 
 interface MetaData {
   /** Date when the JMdict XML was created */
@@ -36,7 +35,7 @@ interface MetaData {
 }
 
 interface EntryFilter {
-  acceptedPos: JmDictSensePos[];
+  acceptedPos: XmlJmDictSensePos[];
   kanaMinLength: number;
   kanaMaxLength: number;
 }
@@ -59,7 +58,7 @@ interface IndexData {
  * https://www.edrdg.org/wiki/index.php/JMdict-EDICT_Dictionary_Project
  */
 export class JMDictProcessor {
-  private xml?: JmDictXml;
+  private xml?: XmlJmDictXml;
   private meta: MetaData = {
     wordsDiscarded: 0,
     wordsIndexed: 0,
@@ -74,66 +73,66 @@ export class JMDictProcessor {
     kanaMinLength: 2,
     acceptedPos: [
       // noun
-      JmDictSensePos.n,
+      'noun (common) (futsuumeishi)',
       // verbs
-      JmDictSensePos.v1,
-      JmDictSensePos.v1_s,
-      JmDictSensePos.v2a_s,
-      JmDictSensePos.v2b_k,
-      JmDictSensePos.v2b_s,
-      JmDictSensePos.v2d_k,
-      JmDictSensePos.v2d_s,
-      JmDictSensePos.v2g_k,
-      JmDictSensePos.v2g_s,
-      JmDictSensePos.v2h_k,
-      JmDictSensePos.v2h_s,
-      JmDictSensePos.v2k_k,
-      JmDictSensePos.v2k_s,
-      JmDictSensePos.v2m_k,
-      JmDictSensePos.v2m_s,
-      JmDictSensePos.v2n_s,
-      JmDictSensePos.v2r_k,
-      JmDictSensePos.v2r_s,
-      JmDictSensePos.v2s_s,
-      JmDictSensePos.v2t_k,
-      JmDictSensePos.v2t_s,
-      JmDictSensePos.v2w_s,
-      JmDictSensePos.v2y_k,
-      JmDictSensePos.v2y_s,
-      JmDictSensePos.v2z_s,
-      JmDictSensePos.v4b,
-      JmDictSensePos.v4g,
-      JmDictSensePos.v4h,
-      JmDictSensePos.v4k,
-      JmDictSensePos.v4m,
-      JmDictSensePos.v4n,
-      JmDictSensePos.v4r,
-      JmDictSensePos.v4s,
-      JmDictSensePos.v4t,
-      JmDictSensePos.v5aru,
-      JmDictSensePos.v5b,
-      JmDictSensePos.v5g,
-      JmDictSensePos.v5k,
-      JmDictSensePos.v5k_s,
-      JmDictSensePos.v5m,
-      JmDictSensePos.v5n,
-      JmDictSensePos.v5r,
-      JmDictSensePos.v5r_i,
-      JmDictSensePos.v5s,
-      JmDictSensePos.v5t,
-      JmDictSensePos.v5u,
-      JmDictSensePos.v5u_s,
-      JmDictSensePos.v5uru,
-      JmDictSensePos.vi,
-      JmDictSensePos.vk,
-      JmDictSensePos.vn,
-      JmDictSensePos.vr,
-      JmDictSensePos.vs,
-      JmDictSensePos.vs_c,
-      JmDictSensePos.vs_i,
-      JmDictSensePos.vs_s,
-      JmDictSensePos.vt,
-      JmDictSensePos.vz,
+      'Ichidan verb',
+      'Ichidan verb - kureru special class',
+      "Nidan verb with 'u' ending (archaic)",
+      "Nidan verb (upper class) with 'bu' ending (archaic)",
+      "Nidan verb (lower class) with 'bu' ending (archaic)",
+      "Nidan verb (upper class) with 'dzu' ending (archaic)",
+      "Nidan verb (lower class) with 'dzu' ending (archaic)",
+      "Nidan verb (upper class) with 'gu' ending (archaic)",
+      "Nidan verb (lower class) with 'gu' ending (archaic)",
+      "Nidan verb (upper class) with 'hu/fu' ending (archaic)",
+      "Nidan verb (lower class) with 'hu/fu' ending (archaic)",
+      "Nidan verb (upper class) with 'ku' ending (archaic)",
+      "Nidan verb (lower class) with 'ku' ending (archaic)",
+      "Nidan verb (upper class) with 'mu' ending (archaic)",
+      "Nidan verb (lower class) with 'mu' ending (archaic)",
+      "Nidan verb (lower class) with 'nu' ending (archaic)",
+      "Nidan verb (upper class) with 'ru' ending (archaic)",
+      "Nidan verb (lower class) with 'ru' ending (archaic)",
+      "Nidan verb (lower class) with 'su' ending (archaic)",
+      "Nidan verb (upper class) with 'tsu' ending (archaic)",
+      "Nidan verb (lower class) with 'tsu' ending (archaic)",
+      "Nidan verb (lower class) with 'u' ending and 'we' conjugation (archaic)",
+      "Nidan verb (upper class) with 'yu' ending (archaic)",
+      "Nidan verb (lower class) with 'yu' ending (archaic)",
+      "Nidan verb (lower class) with 'zu' ending (archaic)",
+      "Yodan verb with 'bu' ending (archaic)",
+      "Yodan verb with 'gu' ending (archaic)",
+      "Yodan verb with 'hu/fu' ending (archaic)",
+      "Yodan verb with 'ku' ending (archaic)",
+      "Yodan verb with 'mu' ending (archaic)",
+      "Yodan verb with 'nu' ending (archaic)",
+      "Yodan verb with 'ru' ending (archaic)",
+      "Yodan verb with 'su' ending (archaic)",
+      "Yodan verb with 'tsu' ending (archaic)",
+      'Godan verb - -aru special class',
+      "Godan verb with 'bu' ending",
+      "Godan verb with 'gu' ending",
+      "Godan verb with 'ku' ending",
+      'Godan verb - Iku/Yuku special class',
+      "Godan verb with 'mu' ending",
+      "Godan verb with 'nu' ending",
+      "Godan verb with 'ru' ending",
+      "Godan verb with 'ru' ending (irregular verb)",
+      "Godan verb with 'su' ending",
+      "Godan verb with 'tsu' ending",
+      "Godan verb with 'u' ending",
+      "Godan verb with 'u' ending (special class)",
+      'Godan verb - Uru old class verb (old form of Eru)',
+      'intransitive verb',
+      'Kuru verb - special class',
+      'irregular nu verb',
+      'irregular ru verb, plain form ends with -ri',
+      'noun or participle which takes the aux. verb suru',
+      'su verb - precursor to the modern suru',
+      'suru verb - included',
+      'suru verb - special class',
+      'transitive verb',
+      'Ichidan verb - zuru verb (alternative form of -jiru verbs)',
     ],
   };
 
@@ -207,7 +206,9 @@ export class JMDictProcessor {
     this.meta.outWriteTime = ellapsed;
   }
 
-  private static isXmlReady(xml: JmDictXml | undefined): xml is JmDictXml {
+  private static isXmlReady(
+    xml: XmlJmDictXml | undefined
+  ): xml is XmlJmDictXml {
     if (!xml) {
       throw new Error('XML needs to be read or parsed first');
     }
@@ -224,7 +225,10 @@ export class JMDictProcessor {
 
     console.log('Parsing XML...');
     const t1 = Date.now();
-    const parser = new XMLParser();
+    const parser = new XMLParser({
+      allowBooleanAttributes: true,
+      ignoreAttributes: false,
+    });
     this.xml = parser.parse(xmlBuffer);
     const parseTime = Date.now() - t1;
     console.log(` - XML parsed in ${parseTime} ms.`);
@@ -239,7 +243,7 @@ export class JMDictProcessor {
     );
     if (!entry) return;
     return /Creation Date: (\d{4}-\d{2}-\d{2})/.exec(
-      (entry.sense as JmDictSense).gloss as string
+      (entry.sense as XmlJmDictSense).gloss as unknown as string
     )?.[1];
   }
 
@@ -251,7 +255,7 @@ export class JMDictProcessor {
     });
   }
 
-  private acceptedWords(entry: JmDictEntry): string[] {
+  private acceptedWords(entry: XmlJmDictEntry): string[] {
     const readings = elemToArray(entry.r_ele);
 
     if (!this.filterEntryBySense(entry)) {
@@ -273,7 +277,7 @@ export class JMDictProcessor {
       .map((reading) => reading.reb);
   }
 
-  private filterEntryBySense(entry: JmDictEntry): boolean {
+  private filterEntryBySense(entry: XmlJmDictEntry): boolean {
     return elemToArray(entry.sense).some((sense) => {
       if (!sense.pos) return false;
       return elemToArray(sense.pos).some((elem) =>
@@ -282,7 +286,7 @@ export class JMDictProcessor {
     });
   }
 
-  private filterReadingByWellUsed(reading: JmDictReadingElement): boolean {
+  private filterReadingByWellUsed(reading: XmlJmDictReadingElement): boolean {
     return elemToArray(reading.re_pri).some((priority) =>
       priority?.startsWith('nf')
     );

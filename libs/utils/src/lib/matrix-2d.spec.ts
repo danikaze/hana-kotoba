@@ -126,6 +126,53 @@ describe('Matrix2D class', () => {
     });
   });
 
+  describe('equals', () => {
+    const matrix = Matrix2D.from([
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9],
+    ]);
+
+    it('should return false if size is different', () => {
+      const sameFirstRow = Matrix2D.from([[1, 2, 3]]);
+      expect(matrix.equals(sameFirstRow)).toBe(false);
+      expect(sameFirstRow.equals(matrix)).toBe(false);
+
+      const sameFirstColumn = Matrix2D.from([[1], [4], [7]]);
+      expect(matrix.equals(sameFirstColumn)).toBe(false);
+      expect(sameFirstColumn.equals(matrix)).toBe(false);
+    });
+
+    it('should return false if any value is different', () => {
+      const differentValue = matrix.clone();
+      differentValue.set(1, 1, 0);
+      expect(matrix.equals(differentValue)).toBe(false);
+      expect(differentValue.equals(matrix)).toBe(false);
+    });
+
+    it('should return true if every value is the same', () => {
+      const same = matrix.clone();
+      expect(matrix.equals(same)).toBe(true);
+      expect(same.equals(matrix)).toBe(true);
+    });
+
+    it('should return true comparing with itself', () => {
+      expect(matrix.equals(matrix)).toBe(true);
+    });
+
+    it('should return true on empty matrices', () => {
+      const empty1 = new Matrix2D(0, 0);
+      const empty2 = new Matrix2D(0, 0);
+      expect(empty1.equals(empty2)).toBe(true);
+    });
+
+    it('should return true on uninitialized matrices of the same size', () => {
+      const default1 = new Matrix2D(3, 4);
+      const default2 = new Matrix2D(3, 4);
+      expect(default1.equals(default2)).toBe(true);
+    });
+  });
+
   describe('transpose', () => {
     it('should "do nothing" on 0-sized matrices', () => {
       const m = new Matrix2D(0, 0);
@@ -216,6 +263,98 @@ describe('Matrix2D class', () => {
       expect(cb).toHaveBeenNthCalledWith(4, 5, 1, 1);
       expect(cb).toHaveBeenNthCalledWith(5, 3, 2, 0);
       expect(cb).toHaveBeenNthCalledWith(6, 6, 2, 1);
+    });
+
+    it('should iterate rows', () => {
+      const m = Matrix2D.from([
+        [1, 2, 3],
+        [4, 5, 6],
+      ]);
+      const cb = jest.fn();
+
+      m.iterateRow(1, cb);
+      expect(cb).toHaveBeenCalledTimes(3);
+      expect(cb).toHaveBeenNthCalledWith(1, 4, 0, 1);
+      expect(cb).toHaveBeenNthCalledWith(2, 5, 1, 1);
+      expect(cb).toHaveBeenNthCalledWith(3, 6, 2, 1);
+    });
+
+    it('should iterate columns', () => {
+      const m = Matrix2D.from([
+        [1, 2, 3],
+        [4, 5, 6],
+      ]);
+      const cb = jest.fn();
+
+      m.iterateCol(1, cb);
+      expect(cb).toHaveBeenCalledTimes(2);
+      expect(cb).toHaveBeenNthCalledWith(1, 2, 1, 0);
+      expect(cb).toHaveBeenNthCalledWith(2, 5, 1, 1);
+    });
+
+    it('should allow returns from iterateVertically', () => {
+      const m = Matrix2D.from([
+        [1, 2, 3],
+        [4, 5, 6],
+      ]);
+
+      const cb = jest.fn((x) => {
+        if (x === 4) return x;
+      });
+      const res = m.iterateVertically(cb);
+      expect(res).toBe(4);
+      expect(cb).toHaveBeenCalledTimes(2);
+      expect(cb).toHaveBeenNthCalledWith(1, 1, 0, 0);
+      expect(cb).toHaveBeenNthCalledWith(2, 4, 0, 1);
+    });
+
+    it('should allow returns from iterateHorizontally', () => {
+      const m = Matrix2D.from([
+        [1, 2, 3],
+        [4, 5, 6],
+      ]);
+
+      const cb = jest.fn((x) => {
+        if (x === 4) return x;
+      });
+      const res = m.iterateHorizontally(cb);
+      expect(res).toBe(4);
+      expect(cb).toHaveBeenCalledTimes(4);
+      expect(cb).toHaveBeenNthCalledWith(1, 1, 0, 0);
+      expect(cb).toHaveBeenNthCalledWith(2, 2, 1, 0);
+      expect(cb).toHaveBeenNthCalledWith(3, 3, 2, 0);
+      expect(cb).toHaveBeenNthCalledWith(4, 4, 0, 1);
+    });
+
+    it('should allow returns from iterateRow', () => {
+      const m = Matrix2D.from([
+        [1, 2, 3],
+        [4, 5, 6],
+      ]);
+
+      const cb = jest.fn((x) => {
+        if (x === 2) return x;
+      });
+      const res = m.iterateRow(0, cb);
+      expect(res).toBe(2);
+      expect(cb).toHaveBeenCalledTimes(2);
+      expect(cb).toHaveBeenNthCalledWith(1, 1, 0, 0);
+      expect(cb).toHaveBeenNthCalledWith(2, 2, 1, 0);
+    });
+
+    it('should allow returns from iterateCol', () => {
+      const m = Matrix2D.from([
+        [1, 2, 3],
+        [4, 5, 6],
+      ]);
+
+      const cb = jest.fn((x) => {
+        if (x === 3) return x;
+      });
+      const res = m.iterateCol(2, cb);
+      expect(res).toBe(3);
+      expect(cb).toHaveBeenCalledTimes(1);
+      expect(cb).toHaveBeenNthCalledWith(1, 3, 2, 0);
     });
   });
 

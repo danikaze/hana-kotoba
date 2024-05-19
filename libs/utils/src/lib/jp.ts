@@ -63,6 +63,16 @@ export function isFullKanji(word: string): boolean {
 }
 
 /**
+ * Return true if a word is composed by both hiragana and katakana
+ */
+export function isMixedKana(word: string): boolean {
+  if (isHiragana(word[0])) {
+    return !isFullHiragana(word);
+  }
+  return !isFullKatakana(word);
+}
+
+/**
  * Checks if the given **single character** is a "small" character
  * such as "ょ", "っ", etc.
  */

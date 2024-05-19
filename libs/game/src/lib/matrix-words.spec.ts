@@ -4,23 +4,14 @@ import {
   matrixFromPositionedWords,
   serializeMatrixWords,
 } from './matrix-words';
+import { WordPosition, findMatrixWords } from './find-matrix-words';
 
-describe('matrixWords', () => {
-  it('should serialize matrices to string', () => {
-    const data = [
-      '　じゅうとう'.split('').map((c) => (c === '　' ? '' : c)),
-      '　ゅ　　う　'.split('').map((c) => (c === '　' ? '' : c)),
-      'とう　　じ　'.split('').map((c) => (c === '　' ? '' : c)),
-    ];
-    const matrix = Matrix2D.from(data);
-    const str = serializeMatrixWords(matrix);
+testWith(false, '1,0,じゅうとう;0,2,とう:1,0,じゅう;4,0,とうじ');
+testWith(true, 'じゅうと,4g0200k04n0g04gd00g1g410g1c10');
 
-    expect(str).toBe('1,0,じゅうとう;0,2,とう:1,0,じゅう;4,0,とうじ');
-  });
-
-  it('should deserialize strings into words data', () => {
-    const str = '1,0,じゅうとう;0,2,とう:1,0,じゅう;4,0,とうじ';
-    const data = [
+function testWith(encode: boolean, data1String: string) {
+  describe(`matrixWords (${encode ? 'encode' : 'serialize'})`, () => {
+    const data1: WordPosition[] = [
       {
         word: 'じゅうとう',
         direction: 'h',
@@ -47,52 +38,62 @@ describe('matrixWords', () => {
       },
     ];
 
-    expect(deserializeMatrixWords(str)).toEqual(data);
+    it('should serialize matrices to string', () => {
+      const str = serializeMatrixWords(data1, encode);
+      expect(str).toBe(data1String);
+    });
+
+    it('should deserialize strings into words data', () => {
+      expect(deserializeMatrixWords(data1String, encode)).toEqual(data1);
+    });
+
+    it('should place the words into a matrix', () => {
+      const data = [
+        '　じゅうとう'.split('').map((c) => (c === '　' ? '' : c)),
+        '　ゅ　　う　'.split('').map((c) => (c === '　' ? '' : c)),
+        'とう　　じ　'.split('').map((c) => (c === '　' ? '' : c)),
+      ];
+      const matrix = Matrix2D.from(data);
+      const words = findMatrixWords(matrix);
+      const serialized = serializeMatrixWords(words, encode);
+      const recreatedWords = deserializeMatrixWords(serialized, encode);
+      const recreatedMatrix = matrixFromPositionedWords(recreatedWords);
+
+      expect(recreatedMatrix.toArray()).toEqual(data);
+    });
+
+    it('should not lost a word ending in the last cell (vertical)', () => {
+      const data = [
+        'じゅうと'.split('').map((c) => (c === '　' ? '' : c)),
+        'ゅ　　う'.split('').map((c) => (c === '　' ? '' : c)),
+        'う　　じ'.split('').map((c) => (c === '　' ? '' : c)),
+      ];
+
+      const matrix = Matrix2D.from(data);
+      const words = findMatrixWords(matrix);
+      const serialized = serializeMatrixWords(words, encode);
+      const recreatedWords = deserializeMatrixWords(serialized, encode);
+      const recreatedMatrix = matrixFromPositionedWords(recreatedWords);
+
+      expect(recreatedMatrix.toArray()).toEqual(data);
+    });
+
+    it('should not lost a word ending in the last cell (horizontal)', () => {
+      const data = [
+        'じゅう'.split('').map((c) => (c === '　' ? '' : c)),
+        'じ　　'.split('').map((c) => (c === '　' ? '' : c)),
+        'ゅ　　'.split('').map((c) => (c === '　' ? '' : c)),
+        'う　　'.split('').map((c) => (c === '　' ? '' : c)),
+        'とうじ'.split('').map((c) => (c === '　' ? '' : c)),
+      ];
+
+      const matrix = Matrix2D.from(data);
+      const words = findMatrixWords(matrix);
+      const serialized = serializeMatrixWords(words, encode);
+      const recreatedWords = deserializeMatrixWords(serialized, encode);
+      const recreatedMatrix = matrixFromPositionedWords(recreatedWords);
+
+      expect(recreatedMatrix.toArray()).toEqual(data);
+    });
   });
-
-  it('should place the words into a matrix', () => {
-    const data = [
-      '　じゅうとう'.split('').map((c) => (c === '　' ? '' : c)),
-      '　ゅ　　う　'.split('').map((c) => (c === '　' ? '' : c)),
-      'とう　　じ　'.split('').map((c) => (c === '　' ? '' : c)),
-    ];
-    const matrix = Matrix2D.from(data);
-    const serialized = serializeMatrixWords(matrix);
-    const words = deserializeMatrixWords(serialized);
-    const recreated = matrixFromPositionedWords(words);
-
-    expect(recreated.toArray()).toEqual(data);
-  });
-
-  it('should not lost a word ending in the last cell (vertical)', () => {
-    const data = [
-      'じゅうと'.split('').map((c) => (c === '　' ? '' : c)),
-      'ゅ　　う'.split('').map((c) => (c === '　' ? '' : c)),
-      'う　　じ'.split('').map((c) => (c === '　' ? '' : c)),
-    ];
-
-    const matrix = Matrix2D.from(data);
-    const serialized = serializeMatrixWords(matrix);
-    const words = deserializeMatrixWords(serialized);
-    const recreated = matrixFromPositionedWords(words);
-
-    expect(recreated.toArray()).toEqual(data);
-  });
-
-  it('should not lost a word ending in the last cell (horizontal)', () => {
-    const data = [
-      'じゅう'.split('').map((c) => (c === '　' ? '' : c)),
-      'じ　　'.split('').map((c) => (c === '　' ? '' : c)),
-      'ゅ　　'.split('').map((c) => (c === '　' ? '' : c)),
-      'う　　'.split('').map((c) => (c === '　' ? '' : c)),
-      'とうじ'.split('').map((c) => (c === '　' ? '' : c)),
-    ];
-
-    const matrix = Matrix2D.from(data);
-    const serialized = serializeMatrixWords(matrix);
-    const words = deserializeMatrixWords(serialized);
-    const recreated = matrixFromPositionedWords(words);
-
-    expect(recreated.toArray()).toEqual(data);
-  });
-});
+}

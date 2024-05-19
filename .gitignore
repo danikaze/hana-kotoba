@@ -1,8 +1,8 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # Specific project files to ignore
-apps/edict/src/assets/xml-cache.json
-apps/edict/src/indexed-usable-words.json
+apps/edict/.cache
+.env
 
 # compiled output
 dist

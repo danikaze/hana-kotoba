@@ -1,37 +1,54 @@
 import {
+  BacktrackNodeType,
   BacktrackSolver,
   BacktrackSolverMethods,
   BacktrackSolverOptions,
   BacktrackSolverStopReason,
   createBacktrackSolver,
-} from './backtrack';
+} from '.';
 
 /**
  * Mediocre implementation to find combinations of numbers as an example of how
  * to use (and test) the `BacktrackSolver`
  */
-class Combinations extends BacktrackSolver<number | undefined> {
+export class Combinations extends BacktrackSolver<
+  number | undefined,
+  number[]
+> {
   constructor(readonly pool: number[], options?: BacktrackSolverOptions) {
-    super(options);
+    super({ ...options });
   }
 
-  public expand(): Readonly<number[]> {
+  public expand = (): Readonly<number[]> => {
     return this.pool;
-  }
+  };
 
-  public isValid(state: number, path: Readonly<number[]>): boolean {
+  public checkNode(
+    state: number,
+    path: Readonly<(undefined | number)[]>
+  ): BacktrackNodeType {
     // is valid if it contains no duplicates
-    return new Set(path).size === path.length;
+    if (new Set(path).size !== path.length) {
+      return BacktrackNodeType.INVALID;
+    }
+    // it's a solution if it's reached its length
+    if (path.length === this.pool.length + 1) {
+      return BacktrackNodeType.SOLUTION_AND_BACK;
+    }
+    return BacktrackNodeType.NON_SOLUTION;
   }
 
-  public isSolution(state: number, path: Readonly<number[]>): boolean {
-    return path.length === this.pool.length + 1;
-  }
+  public stateToSolution = (
+    state: Readonly<number | undefined>,
+    path: readonly (number | undefined)[]
+  ): Readonly<number[]> => {
+    return path.slice(1) as number[];
+  };
 }
 
 function testWith(
   runnerName: string,
-  run: BacktrackSolver<number | undefined>['run']
+  run: BacktrackSolver<number | undefined, number[]>['run']
 ) {
   describe(`BacktrackSolver: ${runnerName}`, () => {
     it('should stop after the first solution by default', () => {
@@ -41,12 +58,13 @@ function testWith(
       expect(result.meta.totalNodes).toBe(10);
       expect(result.meta.visitedNodes).toBe(7);
       expect(result.meta.openNodes).toBe(5);
+      expect(result.meta.maxOpenNodes).toBe(8);
       expect(typeof result.meta.time).toBe('number');
+      expect(result.totalMeta).toEqual(result.meta);
 
       expect(result.stopReason).toBe(BacktrackSolverStopReason.SOLUTION_FOUND);
 
-      expect(result.solutions).toEqual([3]);
-      expect(result.solutionPaths).toEqual([[undefined, 1, 2, 3]]);
+      expect(result.solutions).toEqual([[1, 2, 3]]);
     });
 
     it('should find all solutions', () => {
@@ -56,20 +74,20 @@ function testWith(
       expect(result.meta.totalNodes).toBe(31);
       expect(result.meta.visitedNodes).toBe(31);
       expect(result.meta.openNodes).toBe(0);
+      expect(result.meta.maxOpenNodes).toBe(8);
       expect(typeof result.meta.time).toBe('number');
 
       expect(result.stopReason).toBe(
         BacktrackSolverStopReason.ALL_NODES_VISITED
       );
 
-      expect(result.solutions).toEqual([3, 2, 3, 1, 2, 1]);
-      expect(result.solutionPaths).toEqual([
-        [undefined, 1, 2, 3],
-        [undefined, 1, 3, 2],
-        [undefined, 2, 1, 3],
-        [undefined, 2, 3, 1],
-        [undefined, 3, 1, 2],
-        [undefined, 3, 2, 1],
+      expect(result.solutions).toEqual([
+        [1, 2, 3],
+        [1, 3, 2],
+        [2, 1, 3],
+        [2, 3, 1],
+        [3, 1, 2],
+        [3, 2, 1],
       ]);
     });
 
@@ -78,7 +96,7 @@ function testWith(
         undefined
       );
       expect(result.stopReason).toBe(BacktrackSolverStopReason.SOLUTION_FOUND);
-      expect(result.solutionPaths).toEqual([[undefined, 1, 2, 3]]);
+      expect(result.solutions).toEqual([[1, 2, 3]]);
 
       const limitedResult = new Combinations([1, 2, 3], { maxDepth: 2 }).run(
         undefined
@@ -86,7 +104,7 @@ function testWith(
       expect(limitedResult.stopReason).toBe(
         BacktrackSolverStopReason.ALL_NODES_VISITED
       );
-      expect(limitedResult.solutionPaths).toEqual([]);
+      expect(limitedResult.solutions).toEqual([]);
     });
   });
 }
@@ -97,16 +115,26 @@ const classRunner = (() => {
 })();
 const functionSolver = (() => {
   const pool = [1, 2, 3];
-  const methods: BacktrackSolverMethods<number | undefined> = {
+  const methods: BacktrackSolverMethods<number | undefined, number[]> = {
     expand: () => {
       return pool;
     },
-    isValid: (state, path): boolean => {
+    checkNode: (state, path): BacktrackNodeType => {
       // is valid if it contains no duplicates
-      return new Set(path).size === path.length;
+      if (new Set(path).size !== path.length) {
+        return BacktrackNodeType.INVALID;
+      }
+      // it's a solution if it's reached its length
+      if (path.length === pool.length + 1) {
+        return BacktrackNodeType.SOLUTION_AND_BACK;
+      }
+      return BacktrackNodeType.NON_SOLUTION;
     },
-    isSolution: (state, path): boolean => {
-      return path.length === pool.length + 1;
+    stateToSolution: (
+      state: Readonly<number | undefined>,
+      path: readonly (number | undefined)[]
+    ): Readonly<number[]> => {
+      return path.slice(1) as number[];
     },
   };
   return createBacktrackSolver(methods);
