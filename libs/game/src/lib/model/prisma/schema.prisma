@@ -15,6 +15,24 @@ model Meta {
   value String
 }
 
+model HanaGame {
+  id               String @id // nanoid
+  level            Int
+  chars            String
+  serializedMatrix String
+  encodedMatrix    String
+
+  words HanaGameWords[]
+}
+
+model HanaGameWords {
+  word   String
+  game   HanaGame @relation(references: [id], fields: [gameId])
+  gameId String
+
+  @@id([gameId, word])
+}
+
 model JmDictEntry {
   id     Int @id @default(autoincrement())
   entSeq Int @unique

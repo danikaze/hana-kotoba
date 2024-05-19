@@ -19,3 +19,11 @@ prisma generate --schema=./libs/game/src/lib/model/prisma/schema.prisma
 ```
 npx prisma migrate dev --name init --schema=./libs/game/src/lib/model/prisma/schema.prisma
 ```
+
+## Update (migrate) schema
+
+i.e. when adding tables, etc.
+
+```
+npx prisma migrate dev --name hanagames --schema=./libs/game/src/lib/model/prisma/schema.prisma
+```
