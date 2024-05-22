@@ -10,7 +10,7 @@ const MIN_LEVEL = 1;
 const MAX_LEVEL = 1;
 const REPORT_EACH_MS = 60_000;
 const GAME_MIN_WORDS = 4;
-const GAME_MAX_WORDS = 20;
+const GAME_MAX_WORDS = Infinity;
 const MATRICES_PER_CHARS = 2;
 
 const STOP_ON_SOLUTION = 10;

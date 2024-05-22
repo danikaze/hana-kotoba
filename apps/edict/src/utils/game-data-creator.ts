@@ -128,8 +128,12 @@ export class GameDataCreator {
           words: data.words,
           nChars: data.chars.length,
         });
-        gamesToSave.push(...games);
-        nGamesFound += games.length;
+        const filteredGames = games.filter(
+          ({ words }) =>
+            words.length >= gameMinWords && words.length <= gameMaxWords
+        );
+        gamesToSave.push(...filteredGames);
+        nGamesFound += filteredGames.length;
       }
       this.progress.processedBytes += data.bytes;
       this.progress.processedLines++;
