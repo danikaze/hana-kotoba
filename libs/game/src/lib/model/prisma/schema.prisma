@@ -16,7 +16,8 @@ model Meta {
 }
 
 model HanaGame {
-  id               String @id // nanoid
+  id               String @id // nanoid for public api
+  n                Int    @unique // unique number for fast random selection
   level            Int
   chars            String
   serializedMatrix String
