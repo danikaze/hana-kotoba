@@ -3,7 +3,7 @@ import { countFileLines } from '@utils/count-file-lines';
 import { formatNumber, formatPctg, formatTime } from '@utils/format';
 import { customAlphabet } from '@utils/nanoid';
 
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 
 export interface SeedGamesOptions {
   prisma: PrismaClient;
@@ -70,6 +70,7 @@ export async function seedGames({
   let lastLinesProcessed = 0;
   let lastReport = startTime;
   let batch: GameData[] = [];
+  let n = await getHighestHanaGameN(prisma);
   for await (const line of fd.readLines()) {
     const data = JSON.parse(line) as GameData;
     batch.push(data);
@@ -78,7 +79,8 @@ export async function seedGames({
       continue;
     }
 
-    await processBatch(prisma, batch);
+    await processBatch(prisma, batch, n);
+    n += batch.length;
     batch = [];
 
     if (Date.now() > nextReport) {
@@ -102,7 +104,7 @@ export async function seedGames({
 
   if (batch.length > 0) {
     const t0 = Date.now();
-    await processBatch(prisma, batch);
+    await processBatch(prisma, batch, n);
     const ellapsed = Date.now() - t0;
     console.log(
       `    - Last ${formatNumber(batch.length)} processed in ${formatTime(
@@ -126,7 +128,8 @@ export async function seedGames({
 
 async function processBatch(
   { hanaGame, hanaGameWords }: PrismaClient,
-  batch: GameData[]
+  batch: GameData[],
+  firstN: number
 ): Promise<void> {
   // get the existing games
   const existingGames = await hanaGame.findMany({
@@ -144,14 +147,14 @@ async function processBatch(
 
   // data to add
   const { gameData, wordData } = batch.filter(isNewGame).reduce(
-    (res, { words, ...game }) => {
+    (res, { words, ...game }, i) => {
       const gameId = nanoid();
-      res.gameData.push({ ...game, id: gameId });
+      res.gameData.push({ ...game, id: gameId, n: firstN + i });
       res.wordData.push(...words.map((word) => ({ word, gameId })));
       return res;
     },
     {
-      gameData: [] as ({ id: string } & Omit<GameData, 'words'>)[],
+      gameData: [] as ({ id: string; n: number } & Omit<GameData, 'words'>)[],
       wordData: [] as { word: string; gameId: string }[],
     }
   );
@@ -166,4 +169,11 @@ async function clearGamesWords({ hanaGameWords }: PrismaClient): Promise<void> {
 
 async function clearGames({ hanaGame }: PrismaClient): Promise<void> {
   await hanaGame.deleteMany({});
+}
+
+async function getHighestHanaGameN(prisma: PrismaClient): Promise<number> {
+  const query = Prisma.sql(['SELECT MAX(n) as N FROM hanaGame;']);
+  const res = (await prisma.$queryRaw(query)) as { N: number }[];
+
+  return res[0].N || 1;
 }

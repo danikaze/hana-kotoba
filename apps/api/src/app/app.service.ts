@@ -1,32 +1,42 @@
 import { Injectable } from '@nestjs/common';
 
-import { getGameData } from '@game';
-import { findMatrixWords } from '@game/find-matrix-words';
-import { serializeMatrixWords } from '@game/matrix-words';
-import { Matrix2D } from '@utils/matrix-2d';
+import { formatTime } from '@utils/format';
+import { HanaGameModel } from '@game/model';
+import {
+  deserializeMatrixWords,
+  matrixFromPositionedWords,
+} from '@game/matrix-words';
 
 @Injectable()
 export class AppService {
-  getData() {
-    const data = getGameData();
+  private model = new HanaGameModel();
 
-    if (!data) return;
+  public async getData() {
+    const t0 = Date.now();
+    const data = await this.model.readRandomGame();
+    const ellapsedTime = Date.now() - t0;
 
-    print(data.matrix);
+    print(data.serializedMatrix, ellapsedTime);
 
     return {
-      k: data.kanas,
-      w: serializeMatrixWords(
-        findMatrixWords(data.matrix),
+      k: data.chars,
+      w:
         process.env.NODE_ENV === 'production'
-      ),
+          ? data.encodedMatrix
+          : data.serializedMatrix,
     };
   }
 }
 
-function print(matrix: Readonly<Matrix2D<string>>): void {
+function print(serializedMatrix: string, time?: number): void {
+  if (process.env.NODE_ENV === 'production') return;
+
+  const words = deserializeMatrixWords(serializedMatrix);
+  const matrix = matrixFromPositionedWords(words);
+  const t = time ? ` (${formatTime(time)})` : '';
+
   console.log(
-    `---[${matrix.width()}x${matrix.height()}]---\n` +
+    `---[${matrix.width()}x${matrix.height()}]---${t}\n` +
       matrix
         .toArray()
         .map((row) => row.map((c) => c || '　').join(''))

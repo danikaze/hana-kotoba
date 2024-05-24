@@ -1,6 +1,7 @@
 -- CreateTable
 CREATE TABLE "HanaGame" (
     "id" TEXT NOT NULL PRIMARY KEY,
+    "n" INTEGER NOT NULL,
     "level" INTEGER NOT NULL,
     "chars" TEXT NOT NULL,
     "serializedMatrix" TEXT NOT NULL,
@@ -15,3 +16,6 @@ CREATE TABLE "HanaGameWords" (
     PRIMARY KEY ("gameId", "word"),
     CONSTRAINT "HanaGameWords_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "HanaGame" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "HanaGame_n_key" ON "HanaGame"("n");

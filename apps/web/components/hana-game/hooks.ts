@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   EMPTY_CELL,
-  WordPosition,
   deserializeMatrixWords,
   matrixFromPositionedWords,
 } from '@game/matrix-words';
 import { Matrix2D } from '@utils/matrix-2d';
+import { WordPosition } from '@game/find-matrix-words';
 
 import { SHOW_FOUND_MS } from '../../constants/ui';
 import { FoundCell } from '.';
