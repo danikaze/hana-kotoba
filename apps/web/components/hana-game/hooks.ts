@@ -26,7 +26,7 @@ export function useHanaPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await fetch('http://localhost:3000/api', {
+      const res = await fetch('http://localhost:3000/api/game', {
         credentials: 'omit',
       });
       const json = await res.json();
