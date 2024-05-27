@@ -4,6 +4,7 @@ import {
   deserializeMatrixWords,
   matrixFromPositionedWords,
 } from '@game/matrix-words';
+import { JishoWord } from '@jmdict/model';
 import { Matrix2D } from '@utils/matrix-2d';
 import { WordPosition } from '@game/find-matrix-words';
 
@@ -23,8 +24,9 @@ export function useHanaPage() {
   const [chars, setChars] = useState<string[] | undefined>();
   const [foundCells, setFoundCells] = useState<FoundCell[]>([]);
   const [completed, setCompleted] = useState(false);
+  const [foundWords, setFoundWords] = useState<JishoWord[]>([]);
 
-  const fetchData = useCallback(async () => {
+  const fetchGameData = useCallback(async () => {
     try {
       const res = await fetch('http://localhost:3000/api/game', {
         credentials: 'omit',
@@ -47,7 +49,17 @@ export function useHanaPage() {
       console.info(e);
       console.info('retrying...');
       setLoadTry((n) => n + 1);
-      fetchData();
+      fetchGameData();
+    }
+  }, []);
+
+  const fetchWordData = useCallback(async (word: string) => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/jisho/${word}`);
+      const json = await res.json();
+      setFoundWords((current) => [...current, json]);
+    } catch (e) {
+      console.info(e);
     }
   }, []);
 
@@ -61,6 +73,7 @@ export function useHanaPage() {
         const newWords = [...words];
         const wordData = newWords[wordIndex];
         wordData.found = true;
+        fetchWordData(wordData.word);
 
         // schedule the change as it cannot be updated while it's rendering
         setTimeout(() => {
@@ -96,7 +109,7 @@ export function useHanaPage() {
         ? 'VALID'
         : 'INVALID';
     },
-    [words, matrix]
+    [fetchWordData, words, matrix]
   );
 
   const isFoundCell = useCallback(
@@ -110,12 +123,12 @@ export function useHanaPage() {
     setLoadTry(0);
     setMatrix(undefined);
     setCompleted(false);
-    fetchData();
-  }, [fetchData]);
+    fetchGameData();
+  }, [fetchGameData]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchGameData();
+  }, [fetchGameData]);
 
   /**
    * Every time a new word is found, check if the board is complete
@@ -131,6 +144,7 @@ export function useHanaPage() {
     completed,
     loadTry,
     chars,
+    foundWords,
     matrix: matrix?.toArray(),
     onCharSelected,
     isFoundCell,
