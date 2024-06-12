@@ -1,0 +1,38 @@
+$transitionTime: 200ms;
+
+.root {
+  margin: 10px;
+}
+
+.kana {
+  &::before {
+    content: '▼';
+    display: inline-block;
+    margin-right: 0.5em;
+  }
+
+  user-select: none;
+  cursor: pointer;
+  font-size: large;
+  font-weight: bold;
+}
+
+.entriesContainer {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows $transitionTime ease-out;
+}
+
+.entries {
+  overflow: hidden;
+}
+
+.closed {
+  .kana::before {
+    transform: rotate(-90deg);
+  }
+
+  .entriesContainer {
+    grid-template-rows: 0fr;
+  }
+}

@@ -1,13 +1,16 @@
+$quarterContainerPadding: 5px;
+
 .root {
   height: 100vh;
   width: 100vw;
   display: grid;
 
   grid-template-columns: 100%;
+  grid-template-columns: 50%;
   grid-template-rows: 50%;
   grid-template-areas:
-    'matrix'
-    'circle';
+    'matrix jisho'
+    'circle jisho';
 
   @media (min-aspect-ratio: 1) {
     grid-template-columns: 50%;
@@ -19,15 +22,40 @@
 .matrix {
   grid-area: matrix;
   background: grey;
+
+  .container {
+    display: flex;
+
+    min-width: 170px;
+    min-height: 170px;
+    width: calc(100% - $quarterContainerPadding * 2);
+    height: calc(100% - $quarterContainerPadding * 2);
+  }
 }
 
 .circle {
   position: relative;
   grid-area: circle;
   background: pink;
+
+  .container {
+    aspect-ratio: 1;
+
+    min-width: 170px;
+    min-height: 170px;
+    height: calc(100% - $quarterContainerPadding * 2);
+    max-height: calc(100vw - $quarterContainerPadding * 2);
+
+    @media (max-aspect-ratio: 1) {
+      height: auto;
+      max-height: inherit;
+      width: calc(100% - $quarterContainerPadding * 2);
+      max-width: calc(100vh - $quarterContainerPadding * 2);
+    }
+  }
 }
 
-.half {
+.quarter {
   // max-height: calc(50vh - 20px);
   // height: calc(50vh - 20px);
   width: 100%;
@@ -37,11 +65,4 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
-  @media (min-aspect-ratio: 1) {
-    // max-width: calc(50vw - 20px);
-    // width: calc(50vw - 20px);
-    // height: 100%;
-    // max-height: 100%;
-  }
 }

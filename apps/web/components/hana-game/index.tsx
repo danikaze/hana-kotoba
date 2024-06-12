@@ -1,11 +1,12 @@
 'use client';
 
-import { FC } from 'react';
 import { clsx } from 'clsx';
+import { FC } from 'react';
 
-import { WordMatrix } from '../word-matrix';
 import { CharsCircle } from '../chars-circle';
 import { CompletedModal } from '../completed-modal';
+import { JishoPanel } from '../jisho-panel';
+import { WordMatrix } from '../word-matrix';
 import { useHanaPage } from './hooks';
 
 import styles from './hana-game.module.scss';
@@ -17,13 +18,17 @@ export interface FoundCell {
 
 export const HanaGame: FC = () => {
   const {
+    totalWords,
     completed,
     loadTry,
     matrix,
     chars,
+    foundWords,
+    openJishoWords,
     isFoundCell,
     onCharSelected,
     getNewBoard,
+    toggleJishoWord,
   } = useHanaPage();
 
   if (!matrix) {
@@ -35,13 +40,25 @@ export const HanaGame: FC = () => {
   }
 
   return (
-    <div className={styles.root}>
-      {completed && <CompletedModal reloadBoard={getNewBoard} />}
-      <div className={clsx(styles.half, styles.matrix)}>
-        <WordMatrix rows={matrix} isFoundCell={isFoundCell} />
+    <div className={clsx(styles.root)}>
+      <div className={clsx(styles.quarter, styles.matrix)}>
+        <div className={styles.container}>
+          <WordMatrix rows={matrix} isFoundCell={isFoundCell} />
+        </div>
       </div>
-      <div className={clsx(styles.half, styles.circle)}>
-        <CharsCircle chars={chars!} onCharSelected={onCharSelected} />
+      <div className={clsx(styles.quarter, styles.circle)}>
+        <div className={styles.container}>
+          <CharsCircle chars={chars!} onCharSelected={onCharSelected} />
+        </div>
+        {completed && <CompletedModal reloadBoard={getNewBoard} />}
+      </div>
+      <div className={clsx(styles.jisho)}>
+        <JishoPanel
+          words={foundWords}
+          total={totalWords}
+          openWords={openJishoWords}
+          toggleWord={toggleJishoWord}
+        />
       </div>
     </div>
   );

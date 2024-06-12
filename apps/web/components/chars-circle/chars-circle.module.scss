@@ -21,58 +21,16 @@ $circlePadding: 5px;
     @include charCircleStyle($total, $n, 22%, 4px, 12px);
   }
 
-  @media (min-width: 330px) {
+  @media (min-width: 400px) {
     @include charCircleStyle($total, $n, 25%, 5px, 15px);
   }
 
   @media (min-width: 500px) {
-    @include charCircleStyle($total, $n, 25%, 6px, 20px);
+    @include charCircleStyle($total, $n, 24%, 6px, 20px);
   }
 
   @media (min-width: 700px) {
     @include charCircleStyle($total, $n, 25%, 8px, 20px);
-  }
-}
-
-@mixin charSizeBy($type: 'width', $ratio: 1) {
-  $query: 'min-' + $type;
-  font-size: 20px;
-
-  @media ($query: calc(170px * $ratio)) {
-    font-size: 24px;
-  }
-  @media ($query: calc(200px * $ratio)) {
-    font-size: 32px;
-  }
-  @media ($query: calc(230px * $ratio)) {
-    font-size: 36px;
-  }
-  @media ($query: calc(270px * $ratio)) {
-    font-size: 40px;
-  }
-  @media ($query: calc(300px * $ratio)) {
-    font-size: 50px;
-  }
-  @media ($query: calc(330px * $ratio)) {
-    font-size: 56px;
-  }
-  @media ($query: calc(350px * $ratio)) {
-    font-size: 60px;
-  }
-  @media ($query: calc(400px * $ratio)) {
-    font-size: 70px;
-  }
-  @media ($query: calc(500px * $ratio)) {
-    font-size: 80px;
-  }
-  @media ($query: calc(600px * $ratio)) {
-    font-size: 92px;
-  }
-  @media ($query: calc(700px * $ratio)) {
-    font-size: 130px;
-  }
-  @media ($query: calc(800px * $ratio)) {
-    font-size: 150px;
   }
 }
 
@@ -102,31 +60,16 @@ $circlePadding: 5px;
   position: relative;
   display: flex;
   flex-direction: column;
+
   background-color: #f9dcfd;
   border-radius: 50%;
-  min-width: 170px;
-  min-height: 170px;
-  aspect-ratio: 1;
-
-  // vertical screen, half wider than higher
-  @media (max-aspect-ratio: 0.5) {
-    width: calc(100% - $circlePadding);
-  }
-  // vertical screen, half higher than wider
-  @media (min-aspect-ratio: 0.5) and (max-aspect-ratio: 1) {
-    height: calc(100% - $circlePadding);
-  }
-  // horizontal screen, half wider than higher
-  @media (min-aspect-ratio: 1) and (max-aspect-ratio: 2) {
-    width: calc(100% - $circlePadding);
-  }
-  // horizontal screen, half higher than wider
-  @media (min-aspect-ratio: 2) {
-    height: calc(100% - $circlePadding);
-  }
+  width: 100%;
+  height: 100%;
 }
 
 .char {
+  container-type: inline-size;
+  cursor: pointer;
   position: absolute;
   border: solid blue;
   border-radius: 50%;
@@ -149,29 +92,16 @@ $circlePadding: 5px;
     border-color: green;
   }
 
-  // vertical screen, half higher than wider
-  @media (max-aspect-ratio: 0.5) {
-    @include charSizeBy('width', 1);
-  }
-  // vertical screen, half higher than wider
-  @media (min-aspect-ratio: 0.5) and (max-aspect-ratio: 1) {
-    @include charSizeBy('height', 2);
-  }
-  // horizontal screen, half higher than wider
-  @media (min-aspect-ratio: 1) and (max-aspect-ratio: 2) {
-    @include charSizeBy('width', 2);
-  }
-  // horizontal screen, half wider than higher
-  @media (min-aspect-ratio: 2) {
-    @include charSizeBy('height', 1);
-  }
-}
+  span {
+    font-size: 75cqw;
 
-.small {
-  font-size: 90%;
-  position: relative;
-  top: 3px;
-  left: -3px;
+    &.small {
+      font-size: 60cqw;
+      position: relative;
+      top: 3px;
+      left: -3px;
+    }
+  }
 }
 
 .connections {
