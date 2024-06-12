@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { GameController } from './game.controller';
+import { GameService } from './game.service';
+import { JishoController } from './jisho.controller';
+import { JishoService } from './jisho.service';
 
 @Module({
   imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [GameController, JishoController],
+  providers: [GameService, JishoService],
 })
 export class AppModule {}

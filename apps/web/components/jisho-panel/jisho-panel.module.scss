@@ -1,0 +1,17 @@
+.root {
+  background-color: azure;
+
+  overflow: auto;
+  max-height: 100vh;
+  height: 100vh;
+}
+
+.title {
+  margin: 10px 10px 24px 10px;
+  font-size: larger;
+  font-weight: bold;
+}
+
+.emptyPanel {
+  margin: 10px;
+}

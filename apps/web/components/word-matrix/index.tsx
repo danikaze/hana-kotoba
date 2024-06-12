@@ -4,6 +4,7 @@ import { clsx } from 'clsx';
 import { isSmallChar } from '@utils/jp';
 
 import styles from './word-matrix.module.scss';
+import { useWordMatrix } from './hooks';
 
 export interface Props {
   /**
@@ -11,25 +12,28 @@ export interface Props {
    * - empty string means free slot available
    * - a character means a used slot
    */
-  rows: Cell[][];
+  rows: WordMatrixCell[][];
   /**
    * Check if a cell need sto be shown as newly found
    */
   isFoundCell: (row: number, col: number) => boolean;
 }
 
-type Cell = string | false;
+export type WordMatrixCell = string | false;
 
 export const WordMatrix: FC<Props> = ({ rows, isFoundCell }) => {
-  const classes = clsx(
-    styles.root,
-    styles[`cell${Math.max(rows.length, rows[0].length)}`]
-  );
+  const { ref, cellSize } = useWordMatrix(rows);
 
   return (
-    <div className={classes}>
+    <div className={styles.root} ref={ref}>
       {rows.map((row, index) => (
-        <Row key={index} index={index} row={row} isFoundCell={isFoundCell} />
+        <Row
+          key={index}
+          index={index}
+          cellSize={cellSize}
+          row={row}
+          isFoundCell={isFoundCell}
+        />
       ))}
     </div>
   );
@@ -37,26 +41,46 @@ export const WordMatrix: FC<Props> = ({ rows, isFoundCell }) => {
 
 const Row: FC<{
   index: number;
+  cellSize: number | undefined;
   row: Props['rows'][number];
   isFoundCell: Props['isFoundCell'];
-}> = ({ index, row, isFoundCell }) => {
+}> = ({ index, cellSize, row, isFoundCell }) => {
   return (
-    <div className={styles.row}>
+    <div className={styles.row} style={{ height: cellSize }}>
       {row.map((cell, col) => (
-        <Cell key={col} cell={cell} isFound={isFoundCell(index, col)} />
+        <Cell
+          key={col}
+          cell={cell}
+          cellSize={cellSize}
+          isFound={isFoundCell(index, col)}
+        />
       ))}
     </div>
   );
 };
 
-const Cell: FC<{ cell: Cell; isFound: boolean }> = ({ cell, isFound }) => {
-  if (cell === false) {
-    return <div className={clsx(styles.cell, styles.empty)}></div>;
-  }
+const Cell: FC<{
+  cell: WordMatrixCell;
+  cellSize: number | undefined;
+  isFound: boolean;
+}> = ({ cell, cellSize, isFound }) => {
+  const style = {
+    width: cellSize,
+    height: cellSize,
+  };
+
+  const cellElem =
+    cell === false ? (
+      <div className={clsx(styles.cell, styles.empty)} />
+    ) : (
+      <div className={clsx(styles.cell, isFound && styles.found)}>
+        <span className={clsx(isSmallChar(cell) && styles.small)}>{cell}</span>
+      </div>
+    );
 
   return (
-    <div className={clsx(styles.cell, isFound && styles.found)}>
-      <span className={clsx(isSmallChar(cell) && styles.small)}>{cell}</span>
+    <div className={styles.cellContainer} style={style}>
+      {cellElem}
     </div>
   );
 };

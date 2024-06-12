@@ -1,32 +1,117 @@
+$quarterContainerPadding: 5px;
+
 .root {
   height: 100vh;
   width: 100vw;
   display: grid;
 
-  grid-template-columns: 100%;
-  grid-template-rows: 50%;
-  grid-template-areas:
-    'matrix'
-    'circle';
+  /**
+   * The grid accepts several configurations for the 3 panels:
+   * - Matrix (m)
+   * - Circle (c)
+   * - Jisho (j)
+   *
+   * The grid has 4 spaces abcd being:
+   * - a: top-left
+   * - b: top-right
+   * - c: bottom-left
+   * - d: bottom-right
+   *
+   * So, Matrix in the top-left, Circle in the bottom-left and Jisho in the right
+   * would be specified as "mjcj"
+   */
 
-  @media (min-aspect-ratio: 1) {
-    grid-template-columns: 50%;
-    grid-template-rows: 100%;
-    grid-template-areas: 'matrix circle';
+  grid-template-columns: 50%;
+  grid-template-rows: 50%;
+  // default is .mjcj
+  grid-template-areas:
+    'matrix jisho'
+    'circle jisho';
+
+  &.cjmj {
+    grid-template-areas:
+      'circle jisho'
+      'matrix jisho';
+  }
+
+  &.jmjc {
+    grid-template-areas:
+      'jisho matrix'
+      'jisho circle';
+  }
+
+  &.jcjm {
+    grid-template-areas:
+      'jisho circle'
+      'jisho matrix';
+  }
+
+  &.jjmc {
+    grid-template-areas:
+      'jisho jisho'
+      'matrix circle';
+  }
+
+  &.mcjj {
+    grid-template-areas:
+      'matrix circle'
+      'jisho jisho';
+  }
+
+  &.jjcm {
+    grid-template-areas:
+      'jisho jisho'
+      'circle matrix';
+  }
+
+  &.cmjj {
+    grid-template-areas:
+      'circle matrix'
+      'jisho jisho';
   }
 }
 
 .matrix {
   grid-area: matrix;
   background: grey;
+
+  .container {
+    display: flex;
+
+    min-width: 170px;
+    min-height: 170px;
+    width: calc(100% - $quarterContainerPadding * 2);
+    height: calc(100% - $quarterContainerPadding * 2);
+  }
 }
 
 .circle {
+  position: relative;
   grid-area: circle;
   background: pink;
+
+  .container {
+    aspect-ratio: 1;
+
+    min-width: 170px;
+    min-height: 170px;
+    height: calc(100% - $quarterContainerPadding * 2);
+    max-height: calc(100vw - $quarterContainerPadding * 2);
+
+    @media (max-aspect-ratio: 1) {
+      height: auto;
+      max-height: inherit;
+      width: calc(100% - $quarterContainerPadding * 2);
+      max-width: calc(100vh - $quarterContainerPadding * 2);
+    }
+  }
 }
 
-.half {
+.jisho {
+  grid-area: jisho;
+}
+
+.quarter {
   // max-height: calc(50vh - 20px);
   // height: calc(50vh - 20px);
   width: 100%;
@@ -36,11 +121,4 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
-  @media (min-aspect-ratio: 1) {
-    // max-width: calc(50vw - 20px);
-    // width: calc(50vw - 20px);
-    // height: 100%;
-    // max-height: 100%;
-  }
 }

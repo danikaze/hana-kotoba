@@ -6,14 +6,16 @@ import {
   deserializeMatrixWords,
   matrixFromPositionedWords,
 } from '@game/matrix-words';
+import { JishoModel, JishoWord } from '@jmdict/model';
 
 @Injectable()
-export class AppService {
-  private model = new HanaGameModel();
+export class GameService {
+  private gameModel = new HanaGameModel();
+  private jishoModel = new JishoModel();
 
-  public async getData() {
+  public async getRandomGame() {
     const t0 = Date.now();
-    const data = await this.model.readRandomGame();
+    const data = await this.gameModel.readRandomGame();
     const ellapsedTime = Date.now() - t0;
 
     print(data.serializedMatrix, ellapsedTime);
@@ -25,6 +27,16 @@ export class AppService {
           ? data.encodedMatrix
           : data.serializedMatrix,
     };
+  }
+
+  public async getWord(word: string): Promise<JishoWord[]> {
+    const t0 = Date.now();
+    const data = await this.jishoModel.getWord(word);
+    const ellapsedTime = Date.now() - t0;
+
+    console.log(`getWord: ${formatTime(ellapsedTime)}`);
+
+    return data;
   }
 }
 

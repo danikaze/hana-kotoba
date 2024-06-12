@@ -1,0 +1,29 @@
+.root {
+  display: flex;
+  background-color: white;
+  padding: 5px;
+  margin: 5px;
+}
+
+.sense {
+  margin: 5px;
+}
+
+.pos {
+  cursor: help;
+  padding: 2px 3px;
+  font-size: small;
+  background: rgb(207, 207, 207);
+  color: rgb(56, 56, 56);
+  border-radius: 5px;
+  margin-right: 5px;
+}
+
+.mainKanji {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-width: 3em;
+  font-size: xx-large;
+  font-weight: bold;
+}

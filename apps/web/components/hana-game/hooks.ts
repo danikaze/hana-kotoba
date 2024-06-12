@@ -1,14 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { WordPosition } from '@game/find-matrix-words';
 import {
   EMPTY_CELL,
   deserializeMatrixWords,
   matrixFromPositionedWords,
 } from '@game/matrix-words';
 import { Matrix2D } from '@utils/matrix-2d';
-import { WordPosition } from '@game/find-matrix-words';
 
-import { SHOW_FOUND_MS } from '../../constants/ui';
 import { FoundCell } from '.';
+import { JISHO_WORDS_AS_ACCORDION, SHOW_FOUND_MS } from '../../constants/ui';
+import { JishoWordGroup } from '../jisho-panel';
 
 interface WordData extends WordPosition {
   found?: boolean;
@@ -23,10 +25,12 @@ export function useHanaPage() {
   const [chars, setChars] = useState<string[] | undefined>();
   const [foundCells, setFoundCells] = useState<FoundCell[]>([]);
   const [completed, setCompleted] = useState(false);
+  const [foundWords, setFoundWords] = useState<JishoWordGroup[]>([]);
+  const [openJishoWords, setOpenWords] = useState<number[]>([]);
 
-  const fetchData = useCallback(async () => {
+  const fetchGameData = useCallback(async () => {
     try {
-      const res = await fetch('http://localhost:3000/api', {
+      const res = await fetch('http://localhost:3000/api/game', {
         credentials: 'omit',
       });
       const json = await res.json();
@@ -42,13 +46,43 @@ export function useHanaPage() {
         setChars(json.k.split(''));
         setWords(words);
         setMatrix(board);
+        setFoundWords([]);
       }
     } catch (e) {
       console.info(e);
       console.info('retrying...');
       setLoadTry((n) => n + 1);
-      fetchData();
+      fetchGameData();
     }
+  }, []);
+
+  const fetchWordData = useCallback(async (word: string) => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/jisho/${word}`);
+      const json = await res.json();
+      setFoundWords((current) => [...current, { kana: word, words: json }]);
+    } catch (e) {
+      console.info(e);
+    }
+  }, []);
+
+  const toggleJishoWord = useMemo(() => {
+    if (JISHO_WORDS_AS_ACCORDION) {
+      return (index: number) =>
+        setOpenWords(([openWord]) => (openWord === index ? [] : [index]));
+    }
+
+    return (index: number) =>
+      setOpenWords((openWords) => {
+        const newOpenWords = [...openWords];
+        const i = newOpenWords.indexOf(index);
+        if (i === -1) {
+          newOpenWords.push(index);
+        } else {
+          newOpenWords.splice(i, 1);
+        }
+        return newOpenWords;
+      });
   }, []);
 
   const onCharSelected = useCallback(
@@ -61,6 +95,7 @@ export function useHanaPage() {
         const newWords = [...words];
         const wordData = newWords[wordIndex];
         wordData.found = true;
+        fetchWordData(wordData.word);
 
         // schedule the change as it cannot be updated while it's rendering
         setTimeout(() => {
@@ -96,7 +131,7 @@ export function useHanaPage() {
         ? 'VALID'
         : 'INVALID';
     },
-    [words, matrix]
+    [fetchWordData, words, matrix]
   );
 
   const isFoundCell = useCallback(
@@ -110,12 +145,12 @@ export function useHanaPage() {
     setLoadTry(0);
     setMatrix(undefined);
     setCompleted(false);
-    fetchData();
-  }, [fetchData]);
+    fetchGameData();
+  }, [fetchGameData]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchGameData();
+  }, [fetchGameData]);
 
   /**
    * Every time a new word is found, check if the board is complete
@@ -128,9 +163,15 @@ export function useHanaPage() {
   }, [words, foundCells]);
 
   return {
+    // TODO: Provide the layout from some customizable options
+    layout: 'mjcj',
+    openJishoWords,
+    toggleJishoWord,
+    totalWords: words.length,
     completed,
     loadTry,
     chars,
+    foundWords,
     matrix: matrix?.toArray(),
     onCharSelected,
     isFoundCell,
