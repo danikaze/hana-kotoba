@@ -163,6 +163,8 @@ export function useHanaPage() {
   }, [words, foundCells]);
 
   return {
+    // TODO: Provide the layout from some customizable options
+    layout: 'mjcj',
     openJishoWords,
     toggleJishoWord,
     totalWords: words.length,

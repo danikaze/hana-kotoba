@@ -18,6 +18,7 @@ export interface FoundCell {
 
 export const HanaGame: FC = () => {
   const {
+    layout,
     totalWords,
     completed,
     loadTry,
@@ -40,7 +41,7 @@ export const HanaGame: FC = () => {
   }
 
   return (
-    <div className={clsx(styles.root)}>
+    <div className={clsx(styles.root, styles[layout])}>
       <div className={clsx(styles.quarter, styles.matrix)}>
         <div className={styles.container}>
           <WordMatrix rows={matrix} isFoundCell={isFoundCell} />
