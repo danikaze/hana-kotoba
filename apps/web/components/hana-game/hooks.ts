@@ -164,7 +164,7 @@ export function useHanaPage() {
 
   return {
     // TODO: Provide the layout from some customizable options
-    layout: 'mjcj',
+    layout: 'mmcc',
     openJishoWords,
     toggleJishoWord,
     totalWords: words.length,
