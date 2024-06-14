@@ -1,0 +1,39 @@
+.root {
+  pointer-events: none;
+  position: absolute;
+  z-index: 10;
+
+  aspect-ratio: 1;
+  max-width: 45%;
+  max-height: 45%;
+
+  &.top-left {
+    top: 0;
+    left: 0;
+  }
+  &.top-right {
+    top: 0;
+    right: 0;
+  }
+  &.bottom-left {
+    bottom: 0;
+    left: 0;
+  }
+  &.bottom-right {
+    bottom: 0;
+    right: 0;
+  }
+
+  .shape {
+    pointer-events: initial;
+    cursor: pointer;
+
+    stroke: blue;
+    stroke-width: 2;
+    fill: green;
+
+    &:hover {
+      fill: red;
+    }
+  }
+}

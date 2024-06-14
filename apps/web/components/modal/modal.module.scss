@@ -1,0 +1,50 @@
+$transitionTime: 200ms;
+$bgSpace: 15%;
+$shadowSize: 10px;
+
+.root {
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+.content {
+  position: absolute;
+  width: 100%;
+  height: calc(100% - $bgSpace);
+  top: calc(100% + $shadowSize + 1px);
+  left: 0;
+
+  transition: top $transitionTime;
+  box-shadow: rgba(0, 0, 0, 0.3) 0 0 $shadowSize 0;
+}
+
+.bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity $transitionTime;
+}
+
+.open {
+  pointer-events: initial;
+  .bg {
+    opacity: 0.8;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  .content {
+    top: $bgSpace;
+  }
+}

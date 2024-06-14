@@ -3,9 +3,11 @@
 import { clsx } from 'clsx';
 import { FC, ReactNode } from 'react';
 
+import { ButtonCorner } from '../button-corner';
 import { CharsCircle } from '../chars-circle';
 import { CompletedModal } from '../completed-modal';
 import { JishoPanel } from '../jisho-panel';
+import { Modal } from '../modal';
 import { WordMatrix } from '../word-matrix';
 import { useHanaPage } from './hooks';
 
@@ -35,12 +37,13 @@ export const HanaGame: FC = () => {
     <div className={clsx(styles.root, styles[data.layout])}>
       {renderMatrix(data)}
       {renderCircle(data)}
-      {renderJisho(data)}
+      {renderJishoPanel(data)}
+      {renderJishoModal(data)}
     </div>
   );
 };
 
-function renderMatrix({ matrix, layout, isFoundCell }: HookData): ReactNode {
+function renderMatrix({ matrix, isFoundCell }: HookData): ReactNode {
   return (
     <div className={clsx(styles.quarter, styles.matrix)}>
       <div className={styles.container}>
@@ -54,11 +57,13 @@ function renderCircle({
   layout,
   chars,
   completed,
+  toggleJishoModal,
   getNewBoard,
   onCharSelected,
 }: HookData): ReactNode {
   return (
     <div className={clsx(styles.quarter, styles.circle)}>
+      <ButtonCorner position="top-right" onClick={toggleJishoModal} />
       <div className={clsx(styles.container, styles[getPanelLayout(layout)])}>
         <CharsCircle chars={chars!} onCharSelected={onCharSelected} />
       </div>
@@ -67,7 +72,7 @@ function renderCircle({
   );
 }
 
-function renderJisho({
+function renderJishoPanel({
   layout,
   foundWords,
   totalWords,
@@ -85,6 +90,29 @@ function renderJisho({
         toggleWord={toggleJishoWord}
       />
     </div>
+  );
+}
+
+function renderJishoModal({
+  layout,
+  foundWords,
+  totalWords,
+  openJishoWords,
+  isJishoModalOpen,
+  toggleJishoWord,
+  toggleJishoModal,
+}: HookData): ReactNode {
+  if (layout.includes('j')) return null;
+
+  return (
+    <Modal isOpen={isJishoModalOpen} onClose={toggleJishoModal}>
+      <JishoPanel
+        words={foundWords}
+        total={totalWords}
+        openWords={openJishoWords}
+        toggleWord={toggleJishoWord}
+      />
+    </Modal>
   );
 }
 
