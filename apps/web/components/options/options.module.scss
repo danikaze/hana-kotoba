@@ -1,0 +1,119 @@
+.root {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+}
+
+.layouts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+.layout {
+  cursor: pointer;
+  border: 1px solid grey;
+  width: 100px;
+  height: 100px;
+  margin: 10px;
+  padding: 2px;
+
+  &.active {
+    border-width: 3px;
+    padding: 0;
+  }
+
+  display: grid;
+  grid-template-columns: 50%;
+  grid-template-rows: 50%;
+
+  &.mjcj {
+    grid-template-areas:
+      'matrix jisho'
+      'circle jisho';
+  }
+
+  &.cjmj {
+    grid-template-areas:
+      'circle jisho'
+      'matrix jisho';
+  }
+
+  &.jmjc {
+    grid-template-areas:
+      'jisho matrix'
+      'jisho circle';
+  }
+
+  &.jcjm {
+    grid-template-areas:
+      'jisho circle'
+      'jisho matrix';
+  }
+
+  &.jjmc {
+    grid-template-areas:
+      'jisho jisho'
+      'matrix circle';
+  }
+
+  &.mcjj {
+    grid-template-areas:
+      'matrix circle'
+      'jisho jisho';
+  }
+
+  &.jjcm {
+    grid-template-areas:
+      'jisho jisho'
+      'circle matrix';
+  }
+
+  &.cmjj {
+    grid-template-areas:
+      'circle matrix'
+      'jisho jisho';
+  }
+
+  /*
+   * Hidden Jisho panel, for mobile devices
+   */
+  &.ccmm {
+    grid-template-areas:
+      'circle circle'
+      'matrix matrix';
+  }
+  &.mmcc {
+    grid-template-areas:
+      'matrix matrix'
+      'circle circle';
+  }
+  &.cmcm {
+    grid-template-areas:
+      'circle matrix'
+      'circle matrix';
+  }
+  &.mcmc {
+    grid-template-areas:
+      'matrix circle'
+      'matrix circle';
+  }
+}
+
+.matrix {
+  grid-area: matrix;
+  margin: 1px;
+  background: grey;
+}
+
+.circle {
+  grid-area: circle;
+  margin: 1px;
+  background: pink;
+}
+
+.jisho {
+  grid-area: jisho;
+  margin: 1px;
+  background: aquamarine;
+}
