@@ -27,6 +27,7 @@ export function useHanaPage() {
   const [completed, setCompleted] = useState(false);
   const [foundWords, setFoundWords] = useState<JishoWordGroup[]>([]);
   const [openJishoWords, setOpenWords] = useState<number[]>([]);
+  const [isJishoModalOpen, setJishoModalOpen] = useState<boolean>(false);
 
   const fetchGameData = useCallback(async () => {
     try {
@@ -83,6 +84,10 @@ export function useHanaPage() {
         }
         return newOpenWords;
       });
+  }, []);
+
+  const toggleJishoModal = useCallback(() => {
+    setJishoModalOpen((isOpen) => !isOpen);
   }, []);
 
   const onCharSelected = useCallback(
@@ -164,7 +169,7 @@ export function useHanaPage() {
 
   return {
     // TODO: Provide the layout from some customizable options
-    layout: 'mjcj',
+    layout: 'mmcc',
     openJishoWords,
     toggleJishoWord,
     totalWords: words.length,
@@ -172,9 +177,11 @@ export function useHanaPage() {
     loadTry,
     chars,
     foundWords,
+    isJishoModalOpen,
     matrix: matrix?.toArray(),
     onCharSelected,
     isFoundCell,
     getNewBoard,
+    toggleJishoModal,
   };
 }

@@ -1,10 +1,11 @@
-import { FC } from 'react';
 import { clsx } from 'clsx';
+import { FC } from 'react';
 
 import { isSmallChar } from '@utils/jp';
 
-import styles from './word-matrix.module.scss';
 import { useWordMatrix } from './hooks';
+
+import styles from './word-matrix.module.scss';
 
 export interface Props {
   /**
@@ -13,6 +14,7 @@ export interface Props {
    * - a character means a used slot
    */
   rows: WordMatrixCell[][];
+
   /**
    * Check if a cell need sto be shown as newly found
    */

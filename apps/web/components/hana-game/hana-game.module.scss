@@ -69,6 +69,30 @@ $quarterContainerPadding: 5px;
       'circle matrix'
       'jisho jisho';
   }
+
+  /*
+   * Hidden Jisho panel, for mobile devices
+   */
+  &.ccmm {
+    grid-template-areas:
+      'circle circle'
+      'matrix matrix';
+  }
+  &.mmcc {
+    grid-template-areas:
+      'circle circle'
+      'matrix matrix';
+  }
+  &.cmcm {
+    grid-template-areas:
+      'circle matrix'
+      'circle matrix';
+  }
+  &.mcmc {
+    grid-template-areas:
+      'matrix circle'
+      'matrix circle';
+  }
 }
 
 .matrix {
@@ -98,11 +122,20 @@ $quarterContainerPadding: 5px;
     height: calc(100% - $quarterContainerPadding * 2);
     max-height: calc(100vw - $quarterContainerPadding * 2);
 
-    @media (max-aspect-ratio: 1) {
-      height: auto;
-      max-height: inherit;
-      width: calc(100% - $quarterContainerPadding * 2);
-      max-width: calc(100vh - $quarterContainerPadding * 2);
+    &.square {
+      @media (max-aspect-ratio: 1) {
+        height: auto;
+        max-height: inherit;
+        width: calc(100% - $quarterContainerPadding * 2);
+        max-width: calc(100vh - $quarterContainerPadding * 2);
+      }
+    }
+
+    &.vertical {
+      @media (max-aspect-ratio: 2) {
+        height: auto;
+        width: calc(100% - $quarterContainerPadding * 2);
+      }
     }
   }
 }
