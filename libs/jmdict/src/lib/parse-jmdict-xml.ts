@@ -1,8 +1,6 @@
 import { XMLParser } from 'fast-xml-parser';
 import { readFile } from 'fs/promises';
 
-import { elemToArray } from '@utils/elem-to-array';
-
 import {
   JM_DICT_DIALECT,
   JM_DICT_FIELD,
@@ -275,4 +273,12 @@ function getAttr<A extends string, N extends { [attr in A]?: string }>(
 ): N[A] | undefined {
   if (typeof node === 'string') return undefined;
   return node[attr];
+}
+
+/**
+ * This is exported in lib/utils but nx is beautiful and a library can't
+ * import from another library T_T
+ */
+function elemToArray<T>(elem: T | T[]): T[] {
+  return Array.isArray(elem) ? elem : [elem];
 }
