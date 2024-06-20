@@ -17,12 +17,7 @@ export interface Props {
   toggleWord: (index: number) => void;
 }
 
-export const JishoPanel: FC<Props> = ({
-  openWords,
-  toggleWord,
-  words,
-  total,
-}) => {
+export const Jisho: FC<Props> = ({ openWords, toggleWord, words, total }) => {
   const toggleFns = useMemo(() => {
     const fns: (() => void)[] = [];
     for (let i = 0; i < total; i++) {

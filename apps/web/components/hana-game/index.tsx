@@ -1,13 +1,15 @@
 'use client';
 
 import { clsx } from 'clsx';
-import { FC, ReactNode } from 'react';
+import { FC } from 'react';
 
 import { ButtonCorner } from '../button-corner';
 import { CharsCircle } from '../chars-circle';
 import { CompletedModal } from '../completed-modal';
-import { JishoPanel } from '../jisho-panel';
+import { Jisho } from '../jisho-panel';
 import { Modal } from '../modal';
+import { Options } from '../options';
+import { UiLayout, useOptions } from '../options/context';
 import { WordMatrix } from '../word-matrix';
 import { useHanaPage } from './hooks';
 
@@ -24,6 +26,7 @@ type HookData = ReturnType<typeof useHanaPage>;
 
 export const HanaGame: FC = () => {
   const data = useHanaPage();
+  const { layout } = useOptions();
 
   if (!data.matrix) {
     return (
@@ -34,16 +37,17 @@ export const HanaGame: FC = () => {
   }
 
   return (
-    <div className={clsx(styles.root, styles[data.layout])}>
-      {renderMatrix(data)}
-      {renderCircle(data)}
-      {renderJishoPanel(data)}
-      {renderJishoModal(data)}
+    <div className={clsx(styles.root, styles[layout])}>
+      <MatrixPanel {...data} />
+      <CirclePanel {...data} />
+      <JishoPanel {...data} />
+      <JishoModal {...data} />
+      <OptionsModal {...data} />
     </div>
   );
 };
 
-function renderMatrix({ matrix, isFoundCell }: HookData): ReactNode {
+const MatrixPanel: FC<HookData> = ({ matrix, isFoundCell }: HookData) => {
   return (
     <div className={clsx(styles.quarter, styles.matrix)}>
       <div className={styles.container}>
@@ -51,39 +55,51 @@ function renderMatrix({ matrix, isFoundCell }: HookData): ReactNode {
       </div>
     </div>
   );
-}
+};
 
-function renderCircle({
-  layout,
+const CirclePanel: FC<HookData> = ({
   chars,
   completed,
   toggleJishoModal,
+  toggleOptionsModal,
   getNewBoard,
   onCharSelected,
-}: HookData): ReactNode {
+}) => {
+  const { layout } = useOptions();
+  const bottomPos = isCirclePanelBottom(layout) ? 'bottom' : 'top';
+
   return (
     <div className={clsx(styles.quarter, styles.circle)}>
-      <ButtonCorner position="top-right" onClick={toggleJishoModal} />
+      <ButtonCorner
+        position={`${bottomPos}-left`}
+        onClick={toggleOptionsModal}
+      />
+      {!isJishoPanelVisible(layout) && (
+        <ButtonCorner
+          position={`${bottomPos}-right`}
+          onClick={toggleJishoModal}
+        />
+      )}
       <div className={clsx(styles.container, styles[getPanelLayout(layout)])}>
         <CharsCircle chars={chars!} onCharSelected={onCharSelected} />
       </div>
       {completed && <CompletedModal reloadBoard={getNewBoard} />}
     </div>
   );
-}
+};
 
-function renderJishoPanel({
-  layout,
+const JishoPanel: FC<HookData> = ({
   foundWords,
   totalWords,
   openJishoWords,
   toggleJishoWord,
-}: HookData): ReactNode {
-  if (!layout.includes('j')) return null;
+}) => {
+  const { layout } = useOptions();
+  if (!isJishoPanelVisible(layout)) return null;
 
   return (
     <div className={clsx(styles.jisho)}>
-      <JishoPanel
+      <Jisho
         words={foundWords}
         total={totalWords}
         openWords={openJishoWords}
@@ -91,22 +107,22 @@ function renderJishoPanel({
       />
     </div>
   );
-}
+};
 
-function renderJishoModal({
-  layout,
+const JishoModal: FC<HookData> = ({
   foundWords,
   totalWords,
   openJishoWords,
   isJishoModalOpen,
   toggleJishoWord,
   toggleJishoModal,
-}: HookData): ReactNode {
-  if (layout.includes('j')) return null;
+}) => {
+  const { layout } = useOptions();
+  if (isJishoPanelVisible(layout)) return null;
 
   return (
     <Modal isOpen={isJishoModalOpen} onClose={toggleJishoModal}>
-      <JishoPanel
+      <Jisho
         words={foundWords}
         total={totalWords}
         openWords={openJishoWords}
@@ -114,12 +130,31 @@ function renderJishoModal({
       />
     </Modal>
   );
-}
+};
 
-function getPanelLayout(layout: HookData['layout']): PanelLayout {
+const OptionsModal: FC<HookData> = ({
+  isOptionsModalOpen,
+  toggleOptionsModal,
+}) => {
+  return (
+    <Modal isOpen={isOptionsModalOpen} onClose={toggleOptionsModal}>
+      <Options />
+    </Modal>
+  );
+};
+
+function getPanelLayout(layout: UiLayout): PanelLayout {
   return layout === 'ccmm' || layout === 'mmcc'
     ? 'horizontal'
     : layout === 'cmcm' || layout === 'mcmc'
     ? 'vertical'
     : 'square';
+}
+
+function isCirclePanelBottom(layout: UiLayout): boolean {
+  return ['mjcj', 'jmjc', 'jjmc', 'jjcm', 'mmcc'].includes(layout);
+}
+
+function isJishoPanelVisible(layout: UiLayout): boolean {
+  return layout.includes('j');
 }
