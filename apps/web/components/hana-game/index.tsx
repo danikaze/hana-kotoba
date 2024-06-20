@@ -74,10 +74,12 @@ const CirclePanel: FC<HookData> = ({
         position={`${bottomPos}-left`}
         onClick={toggleOptionsModal}
       />
-      <ButtonCorner
-        position={`${bottomPos}-right`}
-        onClick={toggleJishoModal}
-      />
+      {!isJishoPanelVisible(layout) && (
+        <ButtonCorner
+          position={`${bottomPos}-right`}
+          onClick={toggleJishoModal}
+        />
+      )}
       <div className={clsx(styles.container, styles[getPanelLayout(layout)])}>
         <CharsCircle chars={chars!} onCharSelected={onCharSelected} />
       </div>
@@ -93,7 +95,7 @@ const JishoPanel: FC<HookData> = ({
   toggleJishoWord,
 }) => {
   const { layout } = useOptions();
-  if (!layout.includes('j')) return null;
+  if (!isJishoPanelVisible(layout)) return null;
 
   return (
     <div className={clsx(styles.jisho)}>
@@ -116,7 +118,7 @@ const JishoModal: FC<HookData> = ({
   toggleJishoModal,
 }) => {
   const { layout } = useOptions();
-  if (layout.includes('j')) return null;
+  if (isJishoPanelVisible(layout)) return null;
 
   return (
     <Modal isOpen={isJishoModalOpen} onClose={toggleJishoModal}>
@@ -151,4 +153,8 @@ function getPanelLayout(layout: UiLayout): PanelLayout {
 
 function isCirclePanelBottom(layout: UiLayout): boolean {
   return ['mjcj', 'jmjc', 'jjmc', 'jjcm', 'mmcc'].includes(layout);
+}
+
+function isJishoPanelVisible(layout: UiLayout): boolean {
+  return layout.includes('j');
 }
