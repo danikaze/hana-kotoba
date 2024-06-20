@@ -8,9 +8,14 @@ import {
 } from '@game/matrix-words';
 import { Matrix2D } from '@utils/matrix-2d';
 
-import { FoundCell } from '.';
-import { JISHO_WORDS_AS_ACCORDION, SHOW_FOUND_MS } from '../../constants/ui';
+import {
+  API_CALL_MAX_RETRIES,
+  JISHO_WORDS_AS_ACCORDION,
+  SHOW_FOUND_MS,
+} from '../../constants/ui';
 import { JishoWordGroup } from '../jisho-panel';
+
+import { FoundCell } from '.';
 
 interface WordData extends WordPosition {
   found?: boolean;
@@ -32,13 +37,16 @@ export function useHanaPage() {
 
   const fetchGameData = useCallback(async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/game', {
+      const res = await fetch(`${process.env.API_URL}/game`, {
         credentials: 'omit',
       });
       const json = await res.json();
 
       if (json.w) {
-        const words = deserializeMatrixWords(json.w);
+        const words = deserializeMatrixWords(
+          json.w,
+          process.env.NODE_ENV === 'production'
+        );
         const matrix = matrixFromPositionedWords(words);
         const board = new Matrix2D<string | false>(
           matrix.width(),
@@ -52,15 +60,16 @@ export function useHanaPage() {
       }
     } catch (e) {
       console.info(e);
+      if (loadTry > API_CALL_MAX_RETRIES) return;
       console.info('retrying...');
       setLoadTry((n) => n + 1);
       fetchGameData();
     }
-  }, []);
+  }, [loadTry]);
 
   const fetchWordData = useCallback(async (word: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/jisho/${word}`);
+      const res = await fetch(`${process.env.API_URL}/jisho/${word}`);
       const json = await res.json();
       setFoundWords((current) => [...current, { kana: word, words: json }]);
     } catch (e) {
